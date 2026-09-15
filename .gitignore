@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+
+# tsc output
+dist/
+*.tsbuildinfo
+
+# tsc emits next to the source in the projects that set no outDir.
+# this repo has no hand-written JS, so ignoring these names outright is safe
+index.js
+index.d.ts
+index.js.map
+index.d.ts.map
+
+# logs
+*.log
+npm-debug.log*
+
+# secrets
+.env
+.env.*
+!.env.example
+
+# macOS
+.DS_Store
