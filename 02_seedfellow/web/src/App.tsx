@@ -1,64 +1,22 @@
-const varierties = [
-	{
-		name: "Cuor di Bue",
-		latinName: "Solanum lycopersicum",
-		description:
-			"	The oxheart tomato, pointed at the base and almost hollow inside. It came to the library from a member whose grandmother grew it  Ticino.",
-		sowTime: "Sow in March and April.",
-		amount: 4,
-	},
-	{
-		name: "Cuor di Bue",
-		latinName: "Solanum lycopersicum",
-		description:
-			"	The oxheart tomato, pointed at the base and almost hollow inside. It came to the library from a member whose grandmother grew it  Ticino.",
-		sowTime: "Sow in March and April.",
-		amount: 4,
-	},
-	{
-		name: "Cuor di Bue",
-		latinName: "Solanum lycopersicum",
-		description:
-			"	The oxheart tomato, pointed at the base and almost hollow inside. It came to the library from a member whose grandmother grew it  Ticino.",
-		sowTime: "Sow in March and April.",
-		amount: 4,
-	},
-	{
-		name: "Cuor di Bue",
-		latinName: "Solanum lycopersicum",
-		description:
-			"	The oxheart tomato, pointed at the base and almost hollow inside. It came to the library from a member whose grandmother grew it  Ticino.",
-		sowTime: "Sow in March and April.",
-		amount: 4,
-	},
-	{
-		name: "Cuor di Bue",
-		latinName: "Solanum lycopersicum",
-		description:
-			"	The oxheart tomato, pointed at the base and almost hollow inside. It came to the library from a member whose grandmother grew it  Ticino.",
-		sowTime: "Sow in March and April.",
-		amount: 4,
-	},
-];
+import './App.css'
 
 function App() {
-	return (
-		<main>
-			<h1>Seedfellow</h1>
+  return (
+    <main className="mx-auto max-w-2xl p-8">
+      <h1 className="mb-6 font-semibold text-2xl">Seedfellow</h1>
 
-			{varierties.map((variety, index) => (
-				<article key={index}>
-					<h2>{variety.name}</h2>
-					<p>
-						<em>{variety.latinName}</em>
-					</p>
-					<p>{variety.description}</p>
-					<p>{variety.sowTime}</p>
-					<p>{variety.amount} packets on the shelf</p>
-				</article>
-			))}
-		</main>
-	);
+      <article className="rounded-xl border border-slate-200 p-4">
+        <h2 className="font-medium text-lg">Berner Rose</h2>
+        <p className="text-slate-500 text-sm italic">Solanum lycopersicum</p>
+        <p className="mt-2 text-slate-700">
+          A pink beefsteak tomato kept around Bern since the 1950s. Thin skin, so it travels badly
+          and tastes like nothing you can buy.
+        </p>
+        <p className="mt-2 text-slate-700">Sow in March and April.</p>
+        <p className="mt-2 font-medium text-sm">4 packets on the shelf</p>
+      </article>
+    </main>
+  )
 }
 
-export default App;
+export default App
