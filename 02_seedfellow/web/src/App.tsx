@@ -1,44 +1,54 @@
-// 1. Write a Logo component that returns:
-//      <span className="text-lg font-bold">Acme</span>
+import { VarietyCard } from "./components/variety-card";
 
-// 2. Write a NavBar component that returns a <nav> with three
-//    <a> links: Home, Products, About.
-//    Give the <nav> the classes "flex gap-4 text-sm".
+const products = [
+	{ id: 1, name: "Wireless Mouse", price: 59.99, badge: "New" },
+	{ id: 2, name: "Mechanical Keyboard", price: 149.5 },
+	{ id: 3, name: "USB-C Monitor", price: 349, inStock: false },
+];
 
-// 3. Write a SiteHeader component that returns a <header> with the
-//    classes "flex items-center justify-between border-b p-4",
-//    containing <Logo /> and <NavBar />.
+// 1. Write a ProductCardProps interface:
+//      name: string, price: number, badge?: string, inStock?: boolean
 
-function App() {
+// 2. Use it on ProductCard, destructuring in the parameter list,
+//    and default inStock to true.
+
+// 2.1 if the badge is added as a prop, it should show a badge with the value of the badge
+//     can be shown as {badge && <span>...</span>}
+
+// 2.2 inStock can be rendered with the help of a ternary operator. it should either render the price or say the text "Out of stock"
+//     {inStock ? (<p>...</p>) : (<p>...</p>)}
+
+function ProductCard() {
 	return (
-		/*<div>
-			<main className="mx-auto max-w-2xl p-8">
-				<h1 className="mb-6 font-semibold text-2xl">Seedfellow</h1>
-				<article className="rounded-xl border border-slate-200 p-4">
-					<h2 className="font-medium text-lg">Berner Rose</h2>
-					<p className="text-slate-500 text-sm italic">Solanum lycopersicum</p>
-					<p className="mt-2 text-slate-700">
-						A pink beefsteak tomato kept around Bern since the 1950s. Thin skin,
-						so it travels badly and tastes like nothing you can buy.
-					</p>
-					<p className="mt-2 text-slate-700">Sow in March and April.</p>
-					<p className="mt-2 font-medium text-sm">4 packets on the shelf</p>
-				</article>
-			</main>
-		</div>*/
-		<div className="min-h-screen bg-white">
-			{/* 4. Render SiteHeader here, as a tag. */}
-			<p className="p-4 text-red-600">No header yet.</p>
+		<div className="rounded-xl border border-slate-200 bg-white p-4">
+			<h3 className="font-semibold text-slate-900">Product name</h3>
+			{/* Here comes the badge if new */}
 
-			<main className="p-4">
-				<h2 className="text-2xl font-bold">Welcome</h2>
-				<p className="mt-2 text-slate-600">
-					The header above should show the logo on the left and the navigation
-					on the right.
-				</p>
-			</main>
+			{/* If it is out of stock, show the text "Out of stock", else show the price itself */}
+			<p className="mt-1 text-xl font-bold text-slate-800">$0.00</p>
 		</div>
 	);
 }
+
+function App() {
+	return (
+		<div className="min-h-screen bg-slate-50 p-8">
+			<div className="mx-auto grid max-w-3xl gap-4 sm:grid-cols-3">
+				{/* 3. Pass each product's data to a ProductCard. */}
+				{/* {products.map((product) => (<ProductCard key={product.id} ... />))} */}
+				<ProductCard />
+				<ProductCard />
+				<ProductCard />
+			</div>
+		</div>
+	);
+}
+
+/*<div>
+			<main className="mx-auto max-w-2xl p-8">
+				<h1 className="mb-6 font-semibold text-2xl">Seedfellow</h1>
+				<VarietyCard />
+			</main>
+		</div>*/
 
 export default App;
