@@ -21,10 +21,5 @@
 		"erasableSyntaxOnly": true,
 		"noFallthroughCasesInSwitch": true
 	},
-	"include": [
-		"main.tsx",
-		"jsx-syntax/**/*",
-		"function-components.tsx/**/*",
-		"props-and-types/**/*"
-	]
+	"include": ["main.tsx", "*/**/*.tsx"]
 }

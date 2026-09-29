@@ -57,10 +57,6 @@ export default function App(): ReactNode {
 				    object: one pair of braces around the name. */}
 				<p className="mt-1 text-xs text-slate-400">{summary}</p>
 			</div>
-			<p className="mx-auto my-3 max-w-sm text-center text-xs text-slate-400">
-				Task 4. Uncomment this footer once the fragment is in place.
-			</p>
 		</Fragment>
 	);
 }
-
