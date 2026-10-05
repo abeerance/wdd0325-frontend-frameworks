@@ -26,6 +26,11 @@ function PackingList() {
 		//      { id: nextId++, label: draft.trim(), packed: false }
 		//    Finish by clearing the text field with the draft setter, or the word you
 		//    just added stays in the box.
+		const label = draft.trim();
+		if (label === "") return;
+
+		setItems([...items, { id: nextId++, label: draft.trim(), packed: false }]);
+		setDraft("");
 	}
 
 	function handleToggle(id: number): void {
@@ -36,12 +41,18 @@ function PackingList() {
 		//    The copy spreads the old item and overrides the one field, so label and
 		//    id survive. Assigning to item.packed edits the object the old array is
 		//    still pointing at, and nothing re-renders.
+		setItems(
+			items.map((item) =>
+				item.id === id ? { ...item, packed: !item.packed } : item,
+			),
+		);
 	}
 
 	function handleRemove(id: number): void {
 		// 3. Produce a new array without the matching item. filter keeps every item
 		//    whose test comes back true, so keep the ones whose id is NOT this id.
 		//    splice edits the array in place, so it does not belong here.
+		setItems(items.filter((item) => item.id !== id));
 	}
 
 	function handleDraftChange(event: ChangeEvent<HTMLInputElement>): void {
@@ -52,7 +63,7 @@ function PackingList() {
 	//    render, from items: filter the unpacked ones and read the length of what
 	//    comes back. Replace the 0 on the right. Do not add a state variable for
 	//    it, or the number stops agreeing with the list after the next toggle.
-	const unpacked = 0;
+	const unpacked = items.filter((item) => !item.packed).length;
 
 	return (
 		<div className="mx-auto max-w-sm px-4 py-10">
