@@ -22,19 +22,21 @@ function TicketCounter() {
 	const remaining = CAPACITY - sold;
 	const soldOut = remaining === 0;
 
-	// STEP 3: handle sell ticket function
+	// Updater form: React passes the latest count, so the +1 never reads a stale value.
 	function handleSellOne() {
 		setSold((current) => current + 1);
 	}
 
-	// STEP 4: handle sell 3 ticket function
+	// Three queued updaters run in order (0 -> 1 -> 2 -> 3). Passing sold + 1 three
+	// times would land on 1, since every call reads the same sold from this render.
+	// Math.min caps each step at CAPACITY, so a click near the end cannot oversell.
 	function handleSellThree() {
 		setSold((current) => Math.min(current + 1, CAPACITY));
 		setSold((current) => Math.min(current + 1, CAPACITY));
 		setSold((current) => Math.min(current + 1, CAPACITY));
 	}
 
-	// STEP 5: reset ticket sell function
+	// Plain value, no updater: the new count does not depend on the old one.
 	function handleReset() {
 		setSold(0);
 	}
