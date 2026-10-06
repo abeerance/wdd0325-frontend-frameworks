@@ -1,4 +1,5 @@
 import type { Kind } from "../data/varieties";
+import { Card } from "./ui/card";
 
 // this is the constant for the filtering group
 const KINDS: Kind[] = ["vegetable", "herb", "flower", "grain"];
@@ -23,7 +24,7 @@ export function VartietyFilter({
 	onClear,
 }: VarietyFilterProps) {
 	return (
-		<div className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 p-4 mb-4">
+		<Card className="flex flex-wrap items-end gap-3 mb-4">
 			{/* This is the search bar from the previous night 6 */}
 			<div className="flex flex-col gap-1">
 				<label htmlFor="search" className="font-medium text-slate-500 text-xs">
@@ -85,6 +86,6 @@ export function VartietyFilter({
 			>
 				Clear
 			</button>
-		</div>
+		</Card>
 	);
 }

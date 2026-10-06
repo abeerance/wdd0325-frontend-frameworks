@@ -10,6 +10,7 @@ import { Text } from "./components/ui/text";
 import { VarietyCard } from "./components/variety-card";
 import { VARIETIES, type Kind } from "./data/varieties";
 import { VartietyFilter } from "./components/variety-filter";
+import { Card } from "./components/ui/card";
 
 // No return type. Every component returns a ReactNode, so writing it says nothing
 // the compiler does not already know.
@@ -53,10 +54,12 @@ function App() {
 				{/* Two outcomes, never both, so a ternary: an empty library gets a
 				    sentence, a full one gets the list. */}
 				{shelf.length === 0 ? (
-					<Text>
-						The library holds nothing yet. Bring seed to the next opening and it
-						will be here.
-					</Text>
+					<Card>
+						<Text>
+							The library holds nothing yet. Bring seed to the next opening and
+							it will be here.
+						</Text>
+					</Card>
 				) : (
 					<ul className="flex flex-col gap-4">
 						{/* .map turns each variety into an element. The key sits on the

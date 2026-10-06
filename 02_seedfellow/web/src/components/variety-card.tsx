@@ -4,6 +4,7 @@
 // `import type` brings in only the type: it is erased at build time, so no code
 // from the data file ends up here.
 import type { Variety } from "../data/varieties";
+import { Card } from "./ui/card";
 import { Text } from "./ui/text";
 
 // The whole variety arrives as one prop rather than six loose ones, so a new field
@@ -17,7 +18,7 @@ interface VarietyCardProps {
 
 export function VarietyCard({ variety, onSelect }: VarietyCardProps) {
 	return (
-		<article className="rounded-xl border border-slate-200 p-4">
+		<Card as="article">
 			<Text variant="title">{variety.name}</Text>
 			<Text variant="muted">{variety.species}</Text>
 			<Text className="mt-2">{variety.story}</Text>
@@ -48,6 +49,6 @@ export function VarietyCard({ variety, onSelect }: VarietyCardProps) {
 					Borrow a packet
 				</button>
 			)}
-		</article>
+		</Card>
 	);
 }
