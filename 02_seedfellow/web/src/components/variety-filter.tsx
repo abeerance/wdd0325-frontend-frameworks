@@ -8,6 +8,8 @@ interface VarietyFilterProps {
 	onSearch: (search: string) => void;
 	kind: Kind | "all";
 	onKind: (kind: Kind | "all") => void;
+	inStock: boolean;
+	onInStock: (inStock: boolean) => void;
 	onClear: () => void;
 }
 
@@ -16,6 +18,8 @@ export function VartietyFilter({
 	onSearch,
 	kind,
 	onKind,
+	inStock,
+	onInStock,
 	onClear,
 }: VarietyFilterProps) {
 	return (
@@ -58,6 +62,21 @@ export function VartietyFilter({
 						</option>
 					))}
 				</select>
+			</div>
+			{/* inStock boolean filter */}
+			<div className="flex flex-col gap-1">
+				<label htmlFor="kind" className="font-medium text-slate-500 text-xs">
+					On the shelf
+				</label>
+				<input
+					id="stock"
+					type="checkbox"
+					checked={inStock}
+					onChange={(event) => {
+						onInStock(event.target.checked);
+					}}
+					className="h-9 w-5"
+				/>
 			</div>
 			<button
 				type="button"

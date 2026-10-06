@@ -18,13 +18,16 @@ function App() {
 	const [search, setSearch] = useState("");
 	// The kind picked in the filter bar. Starts at "all", so every kind shows.
 	const [kind, setKind] = useState<Kind | "all">("all");
+	// Third usestate to check if something is inStock or not
+	const [inStock, setInStock] = useState(false);
 
 	// Derived, not state: recomputed from search on every render, so it never goes
 	// stale. Lowercasing both sides makes the match case-insensitive.
 	const shelf = VARIETIES.filter(
 		(variety) =>
 			variety.name.toLowerCase().includes(search.toLowerCase()) &&
-			(kind === "all" || variety.kind === kind),
+			(kind === "all" || variety.kind === kind) &&
+			(!inStock || variety.packets > 0),
 	);
 
 	return (
@@ -36,11 +39,15 @@ function App() {
 					onSearch={setSearch}
 					kind={kind}
 					onKind={setKind}
+					inStock={inStock}
+					onInStock={setInStock}
 					onClear={() => {
 						// this will reset the search input to an empty string
 						setSearch("");
 						// this will reset the kind selection to "all"
 						setKind("all");
+						// this will reset the in stock check
+						setInStock(false);
 					}}
 				/>
 				{/* Two outcomes, never both, so a ternary: an empty library gets a
