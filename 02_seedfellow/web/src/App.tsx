@@ -8,43 +8,41 @@
 import { useState } from "react";
 import { Text } from "./components/ui/text";
 import { VarietyCard } from "./components/variety-card";
-import { VARIETIES } from "./data/varieties";
+import { VARIETIES, type Kind } from "./data/varieties";
+import { VartietyFilter } from "./components/variety-filter";
 
 // No return type. Every component returns a ReactNode, so writing it says nothing
 // the compiler does not already know.
 function App() {
 	// Search text typed by the user. Starts empty, so every variety shows.
 	const [search, setSearch] = useState("");
+	// The kind picked in the filter bar. Starts at "all", so every kind shows.
+	const [kind, setKind] = useState<Kind | "all">("all");
 
 	// Derived, not state: recomputed from search on every render, so it never goes
 	// stale. Lowercasing both sides makes the match case-insensitive.
-	const shelf = VARIETIES.filter((variety) =>
-		variety.name.toLowerCase().includes(search.toLowerCase()),
+	const shelf = VARIETIES.filter(
+		(variety) =>
+			variety.name.toLowerCase().includes(search.toLowerCase()) &&
+			(kind === "all" || variety.kind === kind),
 	);
 
 	return (
 		<div>
 			<main className="mx-auto max-w-2xl p-8">
 				<h1 className="mb-6 font-semibold text-2xl">Seedfellow</h1>
-				<div className="flex flex-col gap-1 mb-4">
-					<label
-						htmlFor="search"
-						className="font-medium text-slate-500 text-xs"
-					>
-						Search
-					</label>
-					<input
-						type="text"
-						// Controlled input: the field always shows what search holds.
-						value={search}
-						// Each keystroke stores the new text -> re-render -> shelf refilters.
-						onChange={(event) => {
-							setSearch(event.target.value);
-						}}
-						placeholder="z.B. Berner Rose"
-						className="h-9 rounded-lg border border-slate-300 px-2 text-sm"
-					/>
-				</div>
+				<VartietyFilter
+					search={search}
+					onSearch={setSearch}
+					kind={kind}
+					onKind={setKind}
+					onClear={() => {
+						// this will reset the search input to an empty string
+						setSearch("");
+						// this will reset the kind selection to "all"
+						setKind("all");
+					}}
+				/>
 				{/* Two outcomes, never both, so a ternary: an empty library gets a
 				    sentence, a full one gets the list. */}
 				{shelf.length === 0 ? (
