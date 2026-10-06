@@ -9,7 +9,7 @@ import { useState } from "react";
 import { Text } from "./components/ui/text";
 import { VarietyCard } from "./components/variety-card";
 import { VARIETIES, type Kind } from "./data/varieties";
-import { VartietyFilter } from "./components/variety-filter";
+import { VarietyFilter } from "./components/variety-filter";
 import { Card } from "./components/ui/card";
 
 // No return type. Every component returns a ReactNode, so writing it says nothing
@@ -19,7 +19,7 @@ function App() {
 	const [search, setSearch] = useState("");
 	// The kind picked in the filter bar. Starts at "all", so every kind shows.
 	const [kind, setKind] = useState<Kind | "all">("all");
-	// Third usestate to check if something is inStock or not
+	// The "on the shelf" checkbox. Starts false, so retired and empty varieties show too.
 	const [inStock, setInStock] = useState(false);
 
 	// Derived, not state: recomputed from search on every render, so it never goes
@@ -35,7 +35,10 @@ function App() {
 		<div>
 			<main className="mx-auto max-w-2xl p-8">
 				<h1 className="mb-6 font-semibold text-2xl">Seedfellow</h1>
-				<VartietyFilter
+				{/* Lifting state up: App owns search, kind and inStock, the filter bar only
+				    shows them and reports changes. That is why both the bar and the list
+				    below always agree. */}
+				<VarietyFilter
 					search={search}
 					onSearch={setSearch}
 					kind={kind}

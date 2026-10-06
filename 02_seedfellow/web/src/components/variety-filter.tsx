@@ -1,9 +1,12 @@
 import type { Kind } from "../data/varieties";
 import { Card } from "./ui/card";
 
-// this is the constant for the filtering group
+// The kinds the select offers, in the order they appear. A constant outside the
+// component, because it never changes and does not need to be rebuilt every render.
 const KINDS: Kind[] = ["vegetable", "herb", "flower", "grain"];
 
+// The filter bar owns nothing. App holds the three values (lifting state up) and
+// passes each one down with a function to change it: value in, change out.
 interface VarietyFilterProps {
 	search: string;
 	onSearch: (search: string) => void;
@@ -14,7 +17,7 @@ interface VarietyFilterProps {
 	onClear: () => void;
 }
 
-export function VartietyFilter({
+export function VarietyFilter({
 	search,
 	onSearch,
 	kind,
@@ -52,6 +55,8 @@ export function VartietyFilter({
 					id="kind"
 					value={kind}
 					onChange={(event) => {
+						// A select always hands back a string. `as` tells TypeScript it is
+						// one of the options above, which is true because we wrote them.
 						onKind(event.target.value as Kind | "all");
 					}}
 					className="h-9 rounded-lg border border-slate-300 px-2 text-sm"
@@ -66,12 +71,13 @@ export function VartietyFilter({
 			</div>
 			{/* inStock boolean filter */}
 			<div className="flex flex-col gap-1">
-				<label htmlFor="kind" className="font-medium text-slate-500 text-xs">
+				<label htmlFor="stock" className="font-medium text-slate-500 text-xs">
 					On the shelf
 				</label>
 				<input
 					id="stock"
 					type="checkbox"
+					// A checkbox is a yes or no, so it reads `checked`, not `value`.
 					checked={inStock}
 					onChange={(event) => {
 						onInStock(event.target.checked);
@@ -79,6 +85,8 @@ export function VartietyFilter({
 					className="h-9 w-5"
 				/>
 			</div>
+			{/* No arrow needed here: onClear takes nothing, so the click event it
+			    receives is simply ignored. */}
 			<button
 				type="button"
 				onClick={onClear}

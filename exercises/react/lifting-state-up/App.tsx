@@ -1,3 +1,8 @@
+// Night 6, block 2. The lifting-state-up exercise, as we solved it in the room.
+//
+// Two rows of seats, one selection. Each row used to keep its own state, so both
+// rows could have a seat picked at once. The state moves up into SeatPicker, the
+// closest parent both rows share, and each row only shows it and reports clicks.
 import { useState } from "react";
 
 interface SeatRowProps {
@@ -11,6 +16,8 @@ interface SeatRowProps {
 	onSelect: (seat: string) => void;
 }
 
+// SeatRow owns no state any more: what is selected comes in as a prop, and a click
+// goes back out through onSelect.
 function SeatRow({ rowLabel, seats, selectedSeat, onSelect }: SeatRowProps) {
 	return (
 		<div className="flex items-center gap-3">
@@ -18,6 +25,9 @@ function SeatRow({ rowLabel, seats, selectedSeat, onSelect }: SeatRowProps) {
 				{rowLabel}
 			</span>
 			<div className="flex gap-2">
+				{/* Array.from({ length: seats }) makes an array with one empty slot per seat,
+				    and the function turns each slot into a button. The first argument is the
+				    slot itself, unused, so it is named _. */}
 				{Array.from({ length: seats }, (_, index) => {
 					const label = rowLabel + (index + 1);
 					// 2. Highlight based on the selectedSeat prop instead. The comparison
@@ -32,6 +42,7 @@ function SeatRow({ rowLabel, seats, selectedSeat, onSelect }: SeatRowProps) {
 							// 2. Call onSelect(label) instead of setting local state. Keep the
 							//    arrow: onClick={onSelect(label)} would run during the render.
 							onClick={() => onSelect(label)}
+							// One look or the other, so a ternary picks the whole class string.
 							className={
 								isSelected
 									? "h-10 w-10 rounded-lg bg-emerald-600 text-sm font-medium text-white"
@@ -66,6 +77,8 @@ function SeatPicker() {
 				rowLabel="A"
 				seats={4}
 				selectedSeat={selectedSeat}
+				// The setter already has the right shape: it takes a seat label and returns
+				// nothing, so it can be passed as onSelect without an arrow around it.
 				onSelect={setSelectedSeat}
 			/>
 			<SeatRow
