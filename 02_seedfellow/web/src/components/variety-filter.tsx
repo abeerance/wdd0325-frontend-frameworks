@@ -27,7 +27,7 @@ export function VarietyFilter({
 	onClear,
 }: VarietyFilterProps) {
 	return (
-		<Card className="flex flex-wrap items-end gap-3 mb-4">
+		<Card className="flex flex-wrap items-end gap-3">
 			{/* This is the search bar from the previous night 6 */}
 			<div className="flex flex-col gap-1">
 				<label htmlFor="search" className="font-medium text-slate-500 text-xs">

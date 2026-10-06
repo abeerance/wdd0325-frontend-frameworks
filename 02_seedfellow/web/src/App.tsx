@@ -33,8 +33,8 @@ function App() {
 
 	return (
 		<div>
-			<main className="mx-auto max-w-2xl p-8">
-				<h1 className="mb-6 font-semibold text-2xl">Seedfellow</h1>
+			<main className="mx-auto flex max-w-2xl flex-col gap-6 p-8">
+				<h1 className="font-semibold text-2xl">Seedfellow</h1>
 				{/* Lifting state up: App owns search, kind and inStock, the filter bar only
 				    shows them and reports changes. That is why both the bar and the list
 				    below always agree. */}
@@ -54,13 +54,18 @@ function App() {
 						setInStock(false);
 					}}
 				/>
-				{/* Two outcomes, never both, so a ternary: an empty library gets a
+				{/* How many varieties the filters leave, out of the whole library. One
+				    expression with no rule in it, so it stays inline. */}
+				<Text variant="muted">
+					{shelf.length} of {VARIETIES.length} varieties
+				</Text>
+				{/* Two outcomes, never both, so a ternary: an empty shelf gets a
 				    sentence, a full one gets the list. */}
 				{shelf.length === 0 ? (
 					<Card>
 						<Text>
-							The library holds nothing yet. Bring seed to the next opening and
-							it will be here.
+							Nothing matches those filters. Clear them to see the whole
+							library.
 						</Text>
 					</Card>
 				) : (
