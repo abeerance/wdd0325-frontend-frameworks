@@ -81,11 +81,13 @@ function App() {
 						{shelf.map((variety) => (
 							<li key={variety.id}>
 								{/* The card decides when a borrow happens, App decides what a
-								    borrow does. The card calls onSelect with its variety, and
-								    this arrow receives it as picked. */}
+								    borrow does. The card calls onBorrow with its variety and a
+								    count, and this arrow receives them as picked and packets. */}
 								<VarietyCard
 									variety={variety}
-									onSelect={(picked) => alert(`Borrowing ${picked.name}`)}
+									onBorrow={(picked, packets) =>
+										alert(`Borrowing ${packets} of ${picked.name}`)
+									}
 								/>
 							</li>
 						))}

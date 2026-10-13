@@ -7,6 +7,7 @@ import { useState } from "react";
 import type { Variety } from "../data/varieties";
 import { Card } from "./ui/card";
 import { Text } from "./ui/text";
+import { BorrowForm } from "./borrow-form";
 
 // The packet line, named because you would name it out loud. It stays in this
 // file and is not exported: only VarietyCard uses it.
@@ -36,12 +37,12 @@ function PacketLine({ variety }: PacketLineProps) {
 // on Variety needs no change to this interface.
 interface VarietyCardProps {
 	variety: Variety;
-	// A function prop. The card calls it on click and passes back its own variety,
-	// so the parent knows which card was pressed.
-	onSelect: (variety: Variety) => void;
+	// A function prop. The card hands it to BorrowForm, which calls it on submit
+	// with the variety and the packet count, so the parent knows what was borrowed.
+	onBorrow: (variety: Variety, packets: number) => void;
 }
 
-export function VarietyCard({ variety, onSelect }: VarietyCardProps) {
+export function VarietyCard({ variety, onBorrow }: VarietyCardProps) {
 	// Each card has its own isOpen: opening one card does not open the others.
 	const [isOpen, setIsOpen] = useState(false);
 
@@ -69,23 +70,10 @@ export function VarietyCard({ variety, onSelect }: VarietyCardProps) {
 				>
 					{isOpen ? "Less" : "Read more"}
 				</button>
-				{/* Only something to show, nothing in the else case, so &&. Safe here
-			    because the left side is a boolean; a number on the left would print 0. */}
-				{!variety.retired && (
-					<button
-						// Without type="button" a button inside a form submits it.
-						type="button"
-						// An arrow, not onClick={onSelect}: onClick would hand onSelect the
-						// click event, and onSelect wants the variety.
-						onClick={() => {
-							onSelect(variety);
-						}}
-						className="rounded-lg bg-slate-900 px-3 py-1.5 font-medium text-white"
-					>
-						Borrow a packet
-					</button>
-				)}
 			</div>
+			{/* Only something to show, nothing in the else case, so &&. Safe here
+			    because the left side is a boolean; a number on the left would print 0. */}
+			{!variety.retired && <BorrowForm variety={variety} onBorrow={onBorrow} />}
 		</Card>
 	);
 }
