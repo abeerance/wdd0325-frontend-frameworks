@@ -5,31 +5,43 @@
 // A named import, so the braces are required. VarietyCard is exported by name from
 // that file; App is the one default export in the project, because main.tsx imports
 // it that way.
-import { useState } from "react";
+import { useEffect } from "react";
 import { Text } from "./components/ui/text";
 import { VarietyCard } from "./components/variety-card";
-import { VARIETIES, type Kind } from "./data/varieties";
+import { VARIETIES } from "./data/varieties";
 import { VarietyFilter } from "./components/variety-filter";
 import { Card } from "./components/ui/card";
+import { useVarietyFilter } from "./hooks/use-variety-filter";
 
 // No return type. Every component returns a ReactNode, so writing it says nothing
 // the compiler does not already know.
 function App() {
-	// Search text typed by the user. Starts empty, so every variety shows.
-	const [search, setSearch] = useState("");
-	// The kind picked in the filter bar. Starts at "all", so every kind shows.
-	const [kind, setKind] = useState<Kind | "all">("all");
-	// The "on the shelf" checkbox. Starts false, so retired and empty varieties show too.
-	const [inStock, setInStock] = useState(false);
+	// The hook groups the filter's state, calculation and reset in one place.
+	// Its state still belongs to this App; another caller would get its own state.
+	// Read the returned values by name, then pass them to the filter bar below.
+	const {
+		search,
+		setSearch,
+		kind,
+		setKind,
+		inStock,
+		setInStock,
+		shelf,
+		clear,
+	} = useVarietyFilter(VARIETIES);
 
-	// Derived, not state: recomputed from search on every render, so it never goes
-	// stale. Lowercasing both sides makes the match case-insensitive.
-	const shelf = VARIETIES.filter(
-		(variety) =>
-			variety.name.toLowerCase().includes(search.toLowerCase()) &&
-			(kind === "all" || variety.kind === kind) &&
-			(!inStock || variety.packets > 0),
-	);
+	// React calls App to work out the JSX, then updates the page's DOM.
+	// The browser tab is outside that JSX, so an effect keeps its title in sync.
+	// The setup runs after the first commit. On later renders, React compares
+	// the dependencies and runs it again when the displayed count changes.
+	// List the changing values read by the setup: shelf.length changes, while
+	// the imported catalogue and the browser's document are stable here.
+	// If a setup returns cleanup, React calls it before a changed-dependency
+	// setup and when the component unmounts, not immediately after every setup.
+	// This assignment starts no timer or listener, so there is nothing to clean up.
+	useEffect(() => {
+		document.title = `Seedfellow · ${shelf.length} of ${VARIETIES.length} varieties`;
+	}, [shelf.length]); // The dependency array connects the effect to this count.
 
 	return (
 		<div>
@@ -45,14 +57,7 @@ function App() {
 					onKind={setKind}
 					inStock={inStock}
 					onInStock={setInStock}
-					onClear={() => {
-						// this will reset the search input to an empty string
-						setSearch("");
-						// this will reset the kind selection to "all"
-						setKind("all");
-						// this will reset the in stock check
-						setInStock(false);
-					}}
+					onClear={clear}
 				/>
 				{/* How many varieties the filters leave, out of the whole library. One
 				    expression with no rule in it, so it stays inline. */}
