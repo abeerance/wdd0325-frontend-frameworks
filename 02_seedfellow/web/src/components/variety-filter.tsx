@@ -1,3 +1,4 @@
+import { Switch } from "@base-ui/react";
 import type { Kind } from "../data/varieties";
 import { Card } from "./ui/card";
 
@@ -70,20 +71,27 @@ export function VarietyFilter({
 				</select>
 			</div>
 			{/* inStock boolean filter */}
-			<div className="flex flex-col gap-1">
-				<label htmlFor="stock" className="font-medium text-slate-500 text-xs">
+			<div className="flex h-9 items-center">
+				<Switch.Root
+					id="stock"
+					nativeButton
+					checked={inStock}
+					onCheckedChange={onInStock}
+					render={
+						<button
+							type="button"
+							className="h-6 w-11 bg-slate-500 shrink-0 rounded-full p-0.5  data-checked:bg-slate-900 motion-safe:transition-colors"
+						/>
+					}
+				>
+					<Switch.Thumb className="block h-5 w-5 rounded-full bg-white shadow-sm data-checked:translate-x-5 motion-safe:transition-transform" />
+				</Switch.Root>
+				<label
+					htmlFor="stock"
+					className="flex h-9 flex-1 items-center pl-3 text-sm"
+				>
 					On the shelf
 				</label>
-				<input
-					id="stock"
-					type="checkbox"
-					// A checkbox is a yes or no, so it reads `checked`, not `value`.
-					checked={inStock}
-					onChange={(event) => {
-						onInStock(event.target.checked);
-					}}
-					className="h-9 w-5"
-				/>
 			</div>
 			{/* No arrow needed here: onClear takes nothing, so the click event it
 			    receives is simply ignored. */}
