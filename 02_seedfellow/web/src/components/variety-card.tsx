@@ -7,7 +7,7 @@ import { useState } from "react";
 import type { Variety } from "../data/varieties";
 import { Card } from "./ui/card";
 import { Text } from "./ui/text";
-import { BorrowForm } from "./borrow-form";
+import { BorrowDialog } from "./borrow-dialog";
 
 // The packet line, named because you would name it out loud. It stays in this
 // file and is not exported: only VarietyCard uses it.
@@ -70,10 +70,12 @@ export function VarietyCard({ variety, onBorrow }: VarietyCardProps) {
 				>
 					{isOpen ? "Less" : "Read more"}
 				</button>
-			</div>
-			{/* Only something to show, nothing in the else case, so &&. Safe here
+				{/* Only something to show, nothing in the else case, so &&. Safe here
 			    because the left side is a boolean; a number on the left would print 0. */}
-			{!variety.retired && <BorrowForm variety={variety} onBorrow={onBorrow} />}
+				{!variety.retired && (
+					<BorrowDialog variety={variety} onBorrow={onBorrow} />
+				)}
+			</div>
 		</Card>
 	);
 }
