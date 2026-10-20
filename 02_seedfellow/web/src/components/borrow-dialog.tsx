@@ -1,3 +1,5 @@
+"use client";
+
 import { Dialog } from "@base-ui/react/dialog";
 import { Field } from "@base-ui/react/field";
 import { type FormEvent, useState } from "react";

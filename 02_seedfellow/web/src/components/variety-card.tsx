@@ -1,3 +1,5 @@
+"use client";
+
 // One variety, drawn as a card. It knows how a variety looks, nothing about where
 // the list comes from or what borrowing does.
 //

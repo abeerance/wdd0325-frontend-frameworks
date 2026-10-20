@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+/*
+ * Seedfellow's palette. A library that lends seed: warm paper, deep leaf green, sun for
+ * what is new, clay for what is gone. Every text pair here passes WCAG AA (4.5:1) and
+ * every control boundary passes 3:1 against the surface it sits on.
+ */
+@theme {
+  --color-paper: #f6f1e4; /* the page */
+  --color-card: #fffcf3; /* anything raised off the page */
+  --color-dew: #eef4e6; /* a quiet panel, like the filter bar */
+  --color-line: #ddd3bb; /* borders that separate, never ones that must be seen */
+
+  --color-ink: #1d2b1f; /* body text */
+  --color-bark: #5b5344; /* secondary text */
+  --color-stone: #857c68; /* a control that is off */
+
+  --color-moss: #2f6a3c; /* the action */
+  --color-moss-deep: #23522e; /* the action, pressed or hovered */
+  --color-leaf: #8bb35a; /* decoration only: fails 3:1 as a control */
+
+  --color-sun: #f0c14b; /* something new */
+  --color-sun-ink: #6b4e00; /* text on sun */
+  --color-clay: #b0502a; /* retired, refused, gone */
+  --color-sky: #dcebe4;
+  --color-sky-ink: #24473c;
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}

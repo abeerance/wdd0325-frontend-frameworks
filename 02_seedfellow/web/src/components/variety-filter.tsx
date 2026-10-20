@@ -1,3 +1,5 @@
+"use client";
+
 import { Switch } from "@base-ui/react/switch";
 import type { Kind } from "../data/varieties";
 import { Card } from "./ui/card";
