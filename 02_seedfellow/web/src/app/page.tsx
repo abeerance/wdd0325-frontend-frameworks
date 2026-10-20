@@ -1,16 +1,11 @@
 import { Catalogue } from "@/components/catalogue";
+import { Hero } from "@/components/hero";
 
 export default function Home() {
 	return (
-		<div>
-			<main className="mx-auto flex max-w-2xl flex-col gap-6 p-8">
-				<h1 className="font-semibold text-2xl">Seedfellow</h1>
-				<p className="max-w-prose text-bark leading-relaxed">
-					Heritage seed, kept alive by lending it out. Borrow a packet, grow it,
-					bring some back.
-				</p>
-				<Catalogue />
-			</main>
-		</div>
+		<main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10 sm:px-6 lg:py-14">
+			<Hero />
+			<Catalogue />
+		</main>
 	);
 }
