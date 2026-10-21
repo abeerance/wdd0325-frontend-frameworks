@@ -1,0 +1,14 @@
+script:post-response {
+  // Laravel rotates the CSRF token when a session is created and again when it ends,
+  // so read the cookie back after every request rather than once at the start.
+  const setCookie = res.getHeader("set-cookie");
+
+  if (setCookie) {
+    const header = Array.isArray(setCookie) ? setCookie.join(";") : setCookie;
+    const match = header.match(/XSRF-TOKEN=([^;]+)/);
+
+    if (match) {
+      bru.setVar("xsrfToken", decodeURIComponent(match[1]));
+    }
+  }
+}

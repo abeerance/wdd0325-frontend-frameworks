@@ -1,0 +1,21 @@
+meta {
+  name: List varieties two per page
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/varieties?per_page=2
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.per_page: eq 2
+  res.body.meta.last_page: eq 14
+  res.body.links.next: eq {{baseUrl}}/api/varieties?per_page=2&page=2
+}

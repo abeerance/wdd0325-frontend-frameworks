@@ -1,0 +1,27 @@
+meta {
+  name: Accept returned seed into stock
+  type: http
+  seq: 37
+}
+
+post {
+  url: {{baseUrl}}/api/varieties/{{varietyId}}/packets
+  body: json
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+  X-XSRF-TOKEN: {{xsrfToken}}
+}
+
+body:json {
+  {
+    "count": 4
+  }
+}
+
+assert {
+  res.status: eq 201
+  res.body.data.packets_available: eq 4
+}

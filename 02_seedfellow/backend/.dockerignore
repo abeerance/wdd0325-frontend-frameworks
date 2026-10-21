@@ -1,0 +1,42 @@
+# .dockerignore
+# What a production build may not see. Everything else in this folder is copied into the image.
+
+# Settings and secrets reach a container when it starts. An image is copied to registries
+# and servers, so nothing in it may be secret.
+.env
+.env.*
+
+# Rebuilt inside the image, or a description of this machine rather than of the image.
+vendor
+bootstrap/cache/*.php
+public/storage
+
+# What the development stack wrote while it ran: uploads, sessions, compiled views, logs.
+# The directories stay; their contents do not. The seeded photographs live in
+# database/seeders/photos, not here, so the production seeder still finds them.
+storage/app/private/*
+storage/app/public/*
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/testing
+storage/framework/views/*
+storage/logs/*
+
+# For developing and checking the API, not for answering a request.
+.editorconfig
+.git
+.gitattributes
+.gitignore
+.phpunit.cache
+.phpunit.result.cache
+bruno
+compose.yaml
+compose.production.yaml
+db
+Dockerfile
+Dockerfile.production
+nginx.conf
+phpunit.xml
+README.md
+scripts
+tests

@@ -1,0 +1,18 @@
+meta {
+  name: Show a variety that is not there
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/api/varieties/999
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+}
+
+assert {
+  res.status: eq 404
+}

@@ -1,0 +1,20 @@
+meta {
+  name: Log out after registering
+  type: http
+  seq: 19
+}
+
+post {
+  url: {{baseUrl}}/api/logout
+  body: none
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+  X-XSRF-TOKEN: {{xsrfToken}}
+}
+
+assert {
+  res.status: eq 204
+}

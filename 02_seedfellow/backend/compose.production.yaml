@@ -1,0 +1,65 @@
+# compose.production.yaml
+#
+# The API as it runs on a server: the code comes from the images, nothing is mounted from
+# this folder, and settings come from .env.production (copy .env.production.example).
+#
+#   docker compose -f compose.production.yaml up -d --build
+#   docker compose -f compose.production.yaml exec app php artisan migrate --seed --force
+
+# A fixed project name, so the containers are seedfellow-production-* and the network is
+# always seedfellow-production_default whatever folder this file sits in. Without it both
+# compose files in this folder would claim the project "backend" and replace each other's containers.
+name: seedfellow-production
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+      target: web
+    ports:
+      - "127.0.0.1:8081:8080"
+    depends_on:
+      - app
+    # /up answers 200 only when nginx, php-fpm and Laravel have all booted, so one check covers the chain.
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/up"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+      target: app
+    env_file: .env.production
+    volumes:
+      # Uploaded photographs and the seeded ones live here, outside the image, so replacing
+      # the image keeps every one of them.
+      - storage:/var/www/html/storage
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:18.6-alpine
+    # The database reads POSTGRES_PASSWORD from the same file the app reads DB_PASSWORD from.
+    env_file: .env.production
+    environment:
+      POSTGRES_DB: seedfellow
+      POSTGRES_USER: seedfellow
+    volumes:
+      - db-data:/var/lib/postgresql
+    healthcheck:
+      test: pg_isready -h localhost -U seedfellow -d seedfellow
+      interval: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  storage:
+  db-data:

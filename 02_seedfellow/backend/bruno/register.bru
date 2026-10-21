@@ -1,0 +1,35 @@
+meta {
+  name: Register
+  type: http
+  seq: 16
+}
+
+post {
+  url: {{baseUrl}}/api/register
+  body: json
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+  X-XSRF-TOKEN: {{xsrfToken}}
+}
+
+body:json {
+  {
+    "name": "Ana Keller",
+    "email": "ana@example.org",
+    "password": "a row of runner beans",
+    "password_confirmation": "a row of runner beans",
+    "is_librarian": true
+  }
+}
+
+assert {
+  res.status: eq 201
+  res.body.id: eq 3
+  res.body.name: eq Ana Keller
+  res.body.email: eq ana@example.org
+  res.body.is_librarian: eq false
+  res.body.password: isUndefined
+}

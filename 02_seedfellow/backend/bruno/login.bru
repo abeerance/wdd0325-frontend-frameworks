@@ -1,0 +1,31 @@
+meta {
+  name: Log in
+  type: http
+  seq: 21
+}
+
+post {
+  url: {{baseUrl}}/api/login
+  body: json
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+  X-XSRF-TOKEN: {{xsrfToken}}
+}
+
+body:json {
+  {
+    "email": "tomas@example.org",
+    "password": "correct horse battery staple"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.id: eq 2
+  res.body.name: eq Tomas Rieder
+  res.body.is_librarian: eq false
+  res.body.created_at: eq 2026-01-19T09:00:00.000000Z
+}

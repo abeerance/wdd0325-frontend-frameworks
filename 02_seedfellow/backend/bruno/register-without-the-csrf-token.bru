@@ -1,0 +1,29 @@
+meta {
+  name: Register without the CSRF token
+  type: http
+  seq: 12
+}
+
+post {
+  url: {{baseUrl}}/api/register
+  body: json
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+}
+
+body:json {
+  {
+    "name": "Ana Keller",
+    "email": "ana@example.org",
+    "password": "a row of runner beans",
+    "password_confirmation": "a row of runner beans"
+  }
+}
+
+assert {
+  res.status: eq 419
+  res.body.message: eq CSRF token mismatch.
+}

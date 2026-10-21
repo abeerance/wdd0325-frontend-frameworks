@@ -1,0 +1,19 @@
+meta {
+  name: Current member
+  type: http
+  seq: 22
+}
+
+get {
+  url: {{baseUrl}}/api/user
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.email: eq tomas@example.org
+}

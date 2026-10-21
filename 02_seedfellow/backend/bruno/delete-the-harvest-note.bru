@@ -1,0 +1,19 @@
+meta {
+  name: Delete the harvest note
+  type: http
+  seq: 31
+}
+
+delete {
+  url: {{baseUrl}}/api/harvest-notes/{{harvestNoteId}}
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+  X-XSRF-TOKEN: {{xsrfToken}}
+}
+
+assert {
+  res.status: eq 204
+}

@@ -1,0 +1,28 @@
+meta {
+  name: Log in as the librarian
+  type: http
+  seq: 34
+}
+
+post {
+  url: {{baseUrl}}/api/login
+  body: json
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+  X-XSRF-TOKEN: {{xsrfToken}}
+}
+
+body:json {
+  {
+    "email": "marit@example.org",
+    "password": "seeds-in-the-post"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.is_librarian: eq true
+}

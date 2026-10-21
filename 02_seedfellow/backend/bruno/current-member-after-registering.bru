@@ -1,0 +1,21 @@
+meta {
+  name: Current member after registering
+  type: http
+  seq: 17
+}
+
+get {
+  url: {{baseUrl}}/api/user
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.id: eq 3
+  res.body.email: eq ana@example.org
+  res.body.is_librarian: eq false
+}

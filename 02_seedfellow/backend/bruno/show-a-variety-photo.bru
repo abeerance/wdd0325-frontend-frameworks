@@ -1,0 +1,21 @@
+meta {
+  name: Show a variety photo at its version
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/api/varieties/1/photo?v={{varietyPhotoVersion}}
+}
+
+headers {
+  Origin: {{origin}}
+}
+
+assert {
+  res.status: eq 200
+  res.headers["cache-control"]: eq immutable, max-age=31536000, public
+  res.headers.etag: matches ^"f2911967724b6584"$
+  res.headers["set-cookie"]: isUndefined
+  res.headers["x-ratelimit-limit"]: eq "600"
+}

@@ -1,0 +1,27 @@
+meta {
+  name: What I have out
+  type: http
+  seq: 23
+}
+
+get {
+  url: {{baseUrl}}/api/borrowings
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.data.length: eq 3
+  res.body.data[0].returned_on: isNull
+  res.body.data[0].variety.name: eq Nantes 2
+  res.body.data[0].harvest_note: isNull
+  res.body.data[0].variety.photo_credit.author: eq Schlaghecken Josef
+  res.body.data[2].variety.name: eq Berner Rose
+  res.body.data[2].harvest_note.id: eq 1
+  res.body.data[2].harvest_note.seeds_sown: eq 24
+  res.body.data[2].harvest_note.seeds_germinated: eq 19
+}

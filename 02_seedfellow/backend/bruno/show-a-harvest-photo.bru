@@ -1,0 +1,20 @@
+meta {
+  name: Show a harvest photo
+  type: http
+  seq: 29
+}
+
+get {
+  url: {{baseUrl}}/api/harvest-notes/{{harvestNoteId}}/photo
+}
+
+headers {
+  Origin: {{origin}}
+}
+
+assert {
+  res.status: eq 200
+  res.headers["cache-control"]: eq no-cache, public
+  res.headers.etag: matches ^"b5d0c95ec1c64536"$
+  res.headers["set-cookie"]: isUndefined
+}

@@ -1,0 +1,27 @@
+meta {
+  name: Borrow the same last packet again
+  type: http
+  seq: 25
+}
+
+post {
+  url: {{baseUrl}}/api/borrowings
+  body: json
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+  X-XSRF-TOKEN: {{xsrfToken}}
+}
+
+body:json {
+  {
+    "variety_id": 9
+  }
+}
+
+assert {
+  res.status: eq 409
+  res.body.message: eq That variety has no packets left.
+}

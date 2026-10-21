@@ -1,0 +1,30 @@
+meta {
+  name: Register while signed in
+  type: http
+  seq: 18
+}
+
+post {
+  url: {{baseUrl}}/api/register
+  body: json
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+  X-XSRF-TOKEN: {{xsrfToken}}
+}
+
+body:json {
+  {
+    "name": "Ana Keller",
+    "email": "someone-else@example.org",
+    "password": "a row of runner beans",
+    "password_confirmation": "a row of runner beans"
+  }
+}
+
+assert {
+  res.status: eq 403
+  res.body.message: eq You are already signed in. Log out before registering someone new.
+}

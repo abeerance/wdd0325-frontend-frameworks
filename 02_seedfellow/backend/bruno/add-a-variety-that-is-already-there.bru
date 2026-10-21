@@ -1,0 +1,31 @@
+meta {
+  name: Add a variety that is already there
+  type: http
+  seq: 36
+}
+
+post {
+  url: {{baseUrl}}/api/varieties
+  body: json
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+  X-XSRF-TOKEN: {{xsrfToken}}
+}
+
+body:json {
+  {
+    "name": "Zollinger Buschbohne",
+    "species": "Phaseolus vulgaris",
+    "kind": "vegetable",
+    "story": "The same bean, offered twice.",
+    "sowing_months": [5]
+  }
+}
+
+assert {
+  res.status: eq 422
+  res.body.errors.name[0]: eq The name has already been taken.
+}

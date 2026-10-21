@@ -1,0 +1,19 @@
+meta {
+  name: Filter varieties by sowing month
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/varieties?sowing_month=10
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.total: eq 2
+}

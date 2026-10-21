@@ -1,0 +1,20 @@
+meta {
+  name: List varieties with too large a page
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/varieties?per_page=999
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+}
+
+assert {
+  res.status: eq 422
+  res.body.message: eq The per page field must not be greater than 50.
+  res.body.errors.per_page[0]: eq The per page field must not be greater than 50.
+}

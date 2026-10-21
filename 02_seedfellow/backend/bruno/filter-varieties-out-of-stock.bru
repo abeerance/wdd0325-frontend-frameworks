@@ -1,0 +1,20 @@
+meta {
+  name: Filter varieties that are out of stock
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/varieties?in_stock=false
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.meta.total: eq 5
+  res.body.data[0].packets_available: eq 0
+}

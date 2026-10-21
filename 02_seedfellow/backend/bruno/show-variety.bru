@@ -1,0 +1,37 @@
+meta {
+  name: Show one variety
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/varieties/1
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+}
+
+script:post-response {
+  bru.setVar("varietyPhotoVersion", res.body.data.photo_version);
+}
+
+assert {
+  res.status: eq 200
+  res.body.data.name: eq Berner Rose
+  res.body.data.species: eq Solanum lycopersicum
+  res.body.data.packets_available: eq 4
+  res.body.data.germination_rate: eq 0.57
+  res.body.data.harvest_notes.length: eq 2
+  res.body.data.harvest_notes[0].grown_by: eq Marit Frei
+  res.body.data.harvest_notes[0].written_on: eq 2026-08-02
+  res.body.data.harvest_notes[1].written_on: eq 2026-08-20
+  res.body.data.has_photo: eq true
+  res.body.data.photo_version: eq f2911967724b6584
+  res.body.data.photo_path: isUndefined
+  res.body.data.photo_credit.author: eq Frank C. Müller
+  res.body.data.photo_credit.licence: eq CC BY-SA 4.0
+  res.body.data.photo_credit.source_url: eq https://commons.wikimedia.org/wiki/File:Tomate_Berner_Rose_01_(fcm).jpg
+  res.body.data.photo_credit.modified: eq true
+}

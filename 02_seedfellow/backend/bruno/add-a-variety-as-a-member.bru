@@ -1,0 +1,31 @@
+meta {
+  name: Add a variety as an ordinary member
+  type: http
+  seq: 32
+}
+
+post {
+  url: {{baseUrl}}/api/varieties
+  body: json
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+  X-XSRF-TOKEN: {{xsrfToken}}
+}
+
+body:json {
+  {
+    "name": "Not allowed",
+    "species": "Phaseolus vulgaris",
+    "kind": "vegetable",
+    "story": "A member is not a librarian.",
+    "sowing_months": [5]
+  }
+}
+
+assert {
+  res.status: eq 403
+  res.body.message: eq This action is unauthorized.
+}

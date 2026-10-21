@@ -1,0 +1,19 @@
+meta {
+  name: Current member while signed out
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/api/user
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+}
+
+assert {
+  res.status: eq 401
+  res.body.message: eq Unauthenticated.
+}

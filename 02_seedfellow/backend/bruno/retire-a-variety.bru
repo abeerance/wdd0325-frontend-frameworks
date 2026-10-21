@@ -1,0 +1,28 @@
+meta {
+  name: Retire a variety
+  type: http
+  seq: 38
+}
+
+patch {
+  url: {{baseUrl}}/api/varieties/{{varietyId}}
+  body: json
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+  X-XSRF-TOKEN: {{xsrfToken}}
+}
+
+body:json {
+  {
+    "retired": true
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.data.retired: eq true
+  res.body.data.packets_available: eq 0
+}

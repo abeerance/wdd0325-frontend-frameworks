@@ -1,0 +1,22 @@
+meta {
+  name: Return the seed
+  type: http
+  seq: 26
+}
+
+patch {
+  url: {{baseUrl}}/api/borrowings/{{borrowingId}}
+  body: none
+}
+
+headers {
+  Accept: application/json
+  Origin: {{origin}}
+  X-XSRF-TOKEN: {{xsrfToken}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.data.returned_on: isDefined
+  res.body.data.harvest_note: isNull
+}
