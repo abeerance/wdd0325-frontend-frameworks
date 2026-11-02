@@ -1,25 +1,15 @@
-"use client";
+import { BorrowDialog } from "@/components/borrow-dialog";
+import { Card } from "@/components/ui/card";
+import { Text } from "@/components/ui/text";
+import type { Variety } from "@/data/varieties";
 
-// One variety, drawn as a card. It knows how a variety looks, nothing about where
-// the list comes from or what borrowing does.
-//
-// `import type` brings in only the type: it is erased at build time, so no code
-// from the data file ends up here.
-import { useState } from "react";
-import type { Variety } from "../data/varieties";
-import { Card } from "./ui/card";
-import { Text } from "./ui/text";
-import { BorrowDialog } from "./borrow-dialog";
-
-// The packet line, named because you would name it out loud. It stays in this
-// file and is not exported: only VarietyCard uses it.
-interface PacketLineProps {
+interface VarietyCardProps {
 	variety: Variety;
 }
 
-function PacketLine({ variety }: PacketLineProps) {
-	// An early return instead of a ternary: the retired case is answered first, and
-	// everything after it is the normal case. Same logic, read top to bottom.
+// Shares VarietyCardProps: both take one variety and nothing else.
+function PacketLine({ variety }: VarietyCardProps) {
+	// Early return: the retired case is answered first, the rest is the normal case.
 	if (variety.retired) {
 		return (
 			<Text className="mt-2 font-medium text-sm text-amber-700">
@@ -35,49 +25,35 @@ function PacketLine({ variety }: PacketLineProps) {
 	);
 }
 
-// The whole variety arrives as one prop rather than six loose ones, so a new field
-// on Variety needs no change to this interface.
-interface VarietyCardProps {
-	variety: Variety;
-	// A function prop. The card hands it to BorrowForm, which calls it on submit
-	// with the variety and the packet count, so the parent knows what was borrowed.
-	onBorrow: (variety: Variety, packets: number) => void;
-}
-
-export function VarietyCard({ variety, onBorrow }: VarietyCardProps) {
-	// Each card has its own isOpen: opening one card does not open the others.
-	const [isOpen, setIsOpen] = useState(false);
-
+// No "use client" any more: the card has no state or handlers, so it renders on
+// the server and ships as HTML. BorrowDialog is the one interactive island inside.
+export function VarietyCard({ variety }: VarietyCardProps) {
 	return (
 		<Card as="article">
 			<Text variant="title">{variety.name}</Text>
 			<Text variant="muted">{variety.species}</Text>
-			{/* The story and the sowing months only while the card is open. <> is a
-			    fragment: it groups two elements without adding one to the page. */}
-			{isOpen && (
-				<>
-					<Text className="mt-2">{variety.story}</Text>
-					<Text className="mt-2">{variety.sowing}</Text>
-				</>
-			)}
+			{/* <details> replaces the isOpen state: the browser opens and closes it,
+			    and tells screen readers whether it is expanded, with no JavaScript.
+			    group-open: styles the summary label from the details' open state. */}
+			<details className="group mt-3">
+				<summary className="w-fit cursor-pointer list-none rounded-lg border border-slate-300 px-3 py-1.5 font-medium text-sm focus-visible:outline-2 focus-visible:outline-slate-900 focus-visible:outline-offset-2">
+					<span className="group-open:hidden">Read more</span>
+					<span className="hidden group-open:inline">Less</span>
+				</summary>
+				<Text className="mt-2">{variety.story}</Text>
+				<Text className="mt-2">{variety.sowing}</Text>
+			</details>
 			<PacketLine variety={variety} />
-			<div className="mt-3 flex gap-2">
-				<button
-					type="button"
-					// Tells a screen reader whether the content this button controls is
-					// showing, which sighted readers see for themselves.
-					aria-expanded={isOpen}
-					onClick={() => setIsOpen(!isOpen)}
-					className="rounded-lg border border-slate-300 px-3 py-1.5 font-medium text-sm"
-				>
-					{isOpen ? "Less" : "Read more"}
-				</button>
-				{/* Only something to show, nothing in the else case, so &&. Safe here
-			    because the left side is a boolean; a number on the left would print 0. */}
-				{!variety.retired && (
-					<BorrowDialog variety={variety} onBorrow={onBorrow} />
-				)}
-			</div>
+			{!variety.retired && (
+				<div className="mt-3 flex gap-2">
+					{/* Only plain values cross from this server component into the
+					    client dialog; see BorrowDialogProps for why. */}
+					<BorrowDialog
+						name={variety.name}
+						packetsAvailable={variety.packets}
+					/>
+				</div>
+			)}
 		</Card>
 	);
 }

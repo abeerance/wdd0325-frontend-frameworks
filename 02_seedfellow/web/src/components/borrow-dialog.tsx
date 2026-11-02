@@ -3,21 +3,24 @@
 import { Dialog } from "@base-ui/react/dialog";
 import { Field } from "@base-ui/react/field";
 import { type FormEvent, useState } from "react";
-import type { Variety } from "../data/varieties";
 
+// Two plain values instead of the whole variety and an onBorrow function. Props
+// from a server component to a client one must be serialisable: strings and
+// numbers are, functions are not. So the borrow action now lives here, and the
+// dialog takes only the two fields it shows.
 interface BorrowDialogProps {
-	variety: Variety;
-	onBorrow: (variety: Variety, packets: number) => void;
+	name: string;
+	packetsAvailable: number;
 }
 
-export function BorrowDialog({ variety, onBorrow }: BorrowDialogProps) {
+export function BorrowDialog({ name, packetsAvailable }: BorrowDialogProps) {
 	const [isOpen, setIsOpen] = useState(false);
 
 	function handleSubmit(event: FormEvent<HTMLFormElement>) {
 		event.preventDefault();
 
 		const packets = Number(new FormData(event.currentTarget).get("packets"));
-		onBorrow(variety, packets);
+		alert(`Borrowing ${packets} of ${name}`);
 		setIsOpen(false);
 	}
 
@@ -30,10 +33,10 @@ export function BorrowDialog({ variety, onBorrow }: BorrowDialogProps) {
 				<Dialog.Backdrop className="fixed inset-0 bg-slate-900/40 transition-opacity data-closed:opacity-0" />
 				<Dialog.Popup className="-translate-x-1/2 -translate-y-1/2 fixed top-1/2 left-1/2 w-80 rounded-xl bg-white p-5">
 					<Dialog.Title className="font-medium text-lg">
-						Borrow {variety.name}
+						Borrow {name}
 					</Dialog.Title>
 					<Dialog.Description className="mt-1 text-slate-500 text-sm">
-						{variety.packets} packets on the shelf. Bring seed back at the end
+						{packetsAvailable} packets on the shelf. Bring seed back at the end
 						of the season.
 					</Dialog.Description>
 					<form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3">
@@ -46,12 +49,12 @@ export function BorrowDialog({ variety, onBorrow }: BorrowDialogProps) {
 								type="number"
 								required
 								min={1}
-								max={variety.packets}
+								max={packetsAvailable}
 								defaultValue={1}
 								className="h-9 rounded-lg border border-slate-300 px-2 text-sm data-invalid:border-red-500"
 							/>
 							<Field.Description className="text-slate-500 text-xs">
-								One to {variety.packets}.
+								One to {packetsAvailable}.
 							</Field.Description>
 							<Field.Error className="text-red-600 text-xs" />
 						</Field.Root>
