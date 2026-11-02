@@ -6,15 +6,15 @@ import { VARIETIES } from "@/data/varieties";
 // server, then hands the client filter only what it needs to filter, plus the
 // finished cards to show or hide.
 export function Catalogue() {
-	// No type annotation needed: the object shape matches CatalogueEntry, which
-	// TypeScript checks where entries is passed to CatalogueFilter.
-	const entries = VARIETIES.map((variety) => ({
-		id: variety.id,
-		name: variety.name,
-		kind: variety.kind,
-		packets: variety.packets,
-		card: <VarietyCard variety={variety} />,
-	}));
+  // No type annotation needed: the object shape matches CatalogueEntry, which
+  // TypeScript checks where entries is passed to CatalogueFilter.
+  const entries = VARIETIES.map((variety) => ({
+    id: variety.id,
+    name: variety.name,
+    kind: variety.kind,
+    packets: variety.packets,
+    card: <VarietyCard variety={variety} />,
+  }));
 
-	return <CatalogueFilter entries={entries} />;
+  return <CatalogueFilter entries={entries} />;
 }

@@ -7,7 +7,7 @@ import { cn } from "../../lib/cn";
 // Everything a <div> accepts (children, className, id, ...), plus `as`, which picks
 // the element: "article" for a card that stands on its own, "div" for the rest.
 interface CardProps extends ComponentPropsWithoutRef<"div"> {
-	as?: "div" | "article";
+  as?: "div" | "article";
 }
 
 // `as` is renamed to Component because JSX reads a lower-case tag as an HTML
@@ -15,11 +15,11 @@ interface CardProps extends ComponentPropsWithoutRef<"div"> {
 // className is taken out so it can be merged; everything else, children included,
 // stays in rest and is spread onto the element.
 export function Card({ as: Component = "div", className, ...rest }: CardProps) {
-	return (
-		<Component
-			{...rest}
-			// cn merges the frame with the caller's classes; on a clash, the caller wins.
-			className={cn("rounded-xl border border-slate-200 p-4", className)}
-		/>
-	);
+  return (
+    <Component
+      {...rest}
+      // cn merges the frame with the caller's classes; on a clash, the caller wins.
+      className={cn("rounded-xl border border-slate-200 p-4", className)}
+    />
+  );
 }

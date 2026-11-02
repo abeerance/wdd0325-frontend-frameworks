@@ -12,18 +12,18 @@ import { cn } from "../../lib/cn";
 // <p> accepts (children, className, id, onClick, aria-*), so it needs no list of
 // its own beyond the two it adds.
 interface TextProps extends ComponentPropsWithoutRef<"p"> {
-	// Which element to render. A <p> cannot sit inside another <p>, so inline text
-	// needs a span.
-	as?: "p" | "span";
-	variant?: "title" | "body" | "muted";
+  // Which element to render. A <p> cannot sit inside another <p>, so inline text
+  // needs a span.
+  as?: "p" | "span";
+  variant?: "title" | "body" | "muted";
 }
 
 // One class string per variant, looked up by name below. Adding a variant means one
 // line here and one in the union above.
 const VARIANTS = {
-	title: "font-medium text-lg",
-	body: "text-slate-700",
-	muted: "text-slate-500 text-sm italic",
+  title: "font-medium text-lg",
+  body: "text-slate-700",
+  muted: "text-slate-500 text-sm italic",
 };
 
 // This is the simplified solution, which is valid but a bit limitiert
@@ -37,10 +37,10 @@ const VARIANTS = {
 // comes after the spread so cn can merge it with the variant instead of being
 // overwritten by it.
 export function Text({
-	as: Component = "p",
-	variant = "body",
-	className,
-	...rest
+  as: Component = "p",
+  variant = "body",
+  className,
+  ...rest
 }: TextProps) {
-	return <Component {...rest} className={cn(VARIANTS[variant], className)} />;
+  return <Component {...rest} className={cn(VARIANTS[variant], className)} />;
 }

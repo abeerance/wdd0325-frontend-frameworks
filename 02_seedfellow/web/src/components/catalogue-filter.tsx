@@ -1,10 +1,10 @@
 "use client";
 
-import { useVarietyFilter } from "@/hooks/use-variety-filter";
 import type { ReactNode } from "react";
-import { VarietyFilter } from "./variety-filter";
-import { CatalogueResults } from "./catalogue-results";
 import type { Variety } from "@/data/varieties";
+import { useVarietyFilter } from "@/hooks/use-variety-filter";
+import { CatalogueResults } from "./catalogue-results";
+import { VarietyFilter } from "./variety-filter";
 
 // One row of the catalogue: the plain data the filter needs, plus the card already
 // rendered. Pick<Variety, ...> is a built-in generic type: it takes Variety and a
@@ -15,45 +15,45 @@ import type { Variety } from "@/data/varieties";
 // component, the card is not. Data and elements cross the server -> client line;
 // passing the card as a ReactNode keeps VarietyCard on the server.
 export interface CatalogueEntry
-	extends Pick<Variety, "id" | "name" | "kind" | "packets"> {
-	card: ReactNode;
+  extends Pick<Variety, "id" | "name" | "kind" | "packets"> {
+  card: ReactNode;
 }
 
 interface CatalogueFilterProps {
-	entries: CatalogueEntry[];
+  entries: CatalogueEntry[];
 }
 
 // "use client" at the top: state and event handlers live here, so this part runs
 // in the browser. Everything it renders from entries was built on the server.
 export function CatalogueFilter({ entries }: CatalogueFilterProps) {
-	// No <CatalogueEntry> written here: TypeScript infers T = CatalogueEntry from
-	// entries, checks it has name, kind and packets, and types shelf as
-	// CatalogueEntry[]. That is why shelf still has card for CatalogueResults below.
-	const {
-		search,
-		setSearch,
-		kind,
-		setKind,
-		inStock,
-		setInStock,
-		shelf,
-		clear,
-	} = useVarietyFilter(entries);
+  // No <CatalogueEntry> written here: TypeScript infers T = CatalogueEntry from
+  // entries, checks it has name, kind and packets, and types shelf as
+  // CatalogueEntry[]. That is why shelf still has card for CatalogueResults below.
+  const {
+    search,
+    setSearch,
+    kind,
+    setKind,
+    inStock,
+    setInStock,
+    shelf,
+    clear,
+  } = useVarietyFilter(entries);
 
-	return (
-		<>
-			{/* Lifting state up: this component owns the filters, the bar only shows
+  return (
+    <>
+      {/* Lifting state up: this component owns the filters, the bar only shows
 			    them and reports changes, so the bar and the list always agree. */}
-			<VarietyFilter
-				search={search}
-				onSearch={setSearch}
-				kind={kind}
-				onKind={setKind}
-				inStock={inStock}
-				onInStock={setInStock}
-				onClear={clear}
-			/>
-			<CatalogueResults entries={shelf} total={entries.length} />
-		</>
-	);
+      <VarietyFilter
+        search={search}
+        onSearch={setSearch}
+        kind={kind}
+        onKind={setKind}
+        inStock={inStock}
+        onInStock={setInStock}
+        onClear={clear}
+      />
+      <CatalogueResults entries={shelf} total={entries.length} />
+    </>
+  );
 }

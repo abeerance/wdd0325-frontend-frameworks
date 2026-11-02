@@ -14,5 +14,5 @@ import { twMerge } from "tailwind-merge";
 // ...classes collects every argument into one array, so cn takes as many pieces as
 // the caller has.
 export function cn(...classes: ClassValue[]) {
-	return twMerge(clsx(classes));
+  return twMerge(clsx(classes));
 }
