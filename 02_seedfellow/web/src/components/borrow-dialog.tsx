@@ -26,22 +26,22 @@ export function BorrowDialog({ name, packetsAvailable }: BorrowDialogProps) {
 
   return (
     <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
-      <Dialog.Trigger className="rounded-lg bg-slate-900 px-3 py-1.5 font-medium text-sm text-white focus-visible:outline-2 focus-visible:outline-slate-900 focus-visible:outline-offset-2">
+      <Dialog.Trigger className="rounded-lg bg-moss px-3 py-1.5 font-medium text-sm text-card focus-visible:outline-2 focus-visible:outline-moss focus-visible:outline-offset-2">
         Borrow a packet
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 bg-slate-900/40 transition-opacity data-closed:opacity-0" />
-        <Dialog.Popup className="-translate-x-1/2 -translate-y-1/2 fixed top-1/2 left-1/2 w-80 rounded-xl bg-white p-5">
+        <Dialog.Backdrop className="fixed inset-0 bg-ink/40 transition-opacity data-closed:opacity-0" />
+        <Dialog.Popup className="-translate-x-1/2 -translate-y-1/2 fixed top-1/2 left-1/2 w-80 rounded-xl bg-card p-5">
           <Dialog.Title className="font-medium text-lg">
             Borrow {name}
           </Dialog.Title>
-          <Dialog.Description className="mt-1 text-slate-500 text-sm">
+          <Dialog.Description className="mt-1 text-bark text-sm">
             {packetsAvailable} packets on the shelf. Bring seed back at the end
             of the season.
           </Dialog.Description>
           <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3">
             <Field.Root validationMode="onBlur" className="flex flex-col gap-1">
-              <Field.Label className="font-medium text-slate-500 text-xs">
+              <Field.Label className="font-medium text-bark text-xs">
                 Packets
               </Field.Label>
               <Field.Control
@@ -51,20 +51,20 @@ export function BorrowDialog({ name, packetsAvailable }: BorrowDialogProps) {
                 min={1}
                 max={packetsAvailable}
                 defaultValue={1}
-                className="h-9 rounded-lg border border-slate-300 px-2 text-sm data-invalid:border-red-500"
+                className="h-9 rounded-lg border border-stone px-2 text-sm data-invalid:border-clay"
               />
-              <Field.Description className="text-slate-500 text-xs">
+              <Field.Description className="text-bark text-xs">
                 One to {packetsAvailable}.
               </Field.Description>
               <Field.Error className="text-red-600 text-xs" />
             </Field.Root>
             <div className="flex justify-end gap-2">
-              <Dialog.Close className="rounded-lg border border-slate-300 px-3 py-1.5 font-medium text-sm">
+              <Dialog.Close className="rounded-lg border border-stone px-3 py-1.5 font-medium text-sm">
                 Cancel
               </Dialog.Close>
               <button
                 type="submit"
-                className="rounded-lg bg-slate-900 px-3 py-1.5 font-medium text-sm text-white"
+                className="rounded-lg bg-moss px-3 py-1.5 font-medium text-sm text-card"
               >
                 Borrow
               </button>

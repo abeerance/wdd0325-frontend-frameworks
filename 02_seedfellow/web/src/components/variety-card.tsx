@@ -31,7 +31,7 @@ export function VarietyCard({ variety }: VarietyCardProps) {
 			    and tells screen readers whether it is expanded, with no JavaScript.
 			    group-open: styles the summary label from the details' open state. */}
       <details className="group mt-3">
-        <summary className="w-fit cursor-pointer list-none rounded-lg border border-slate-300 px-3 py-1.5 font-medium text-sm focus-visible:outline-2 focus-visible:outline-slate-900 focus-visible:outline-offset-2">
+        <summary className="w-fit cursor-pointer list-none rounded-lg border border-stone px-3 py-1.5 font-medium text-sm focus-visible:outline-2 focus-visible:outline-moss focus-visible:outline-offset-2">
           <span className="group-open:hidden">Read more</span>
           <span className="hidden group-open:inline">Less</span>
         </summary>

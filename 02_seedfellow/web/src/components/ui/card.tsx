@@ -19,7 +19,7 @@ export function Card({ as: Component = "div", className, ...rest }: CardProps) {
     <Component
       {...rest}
       // cn merges the frame with the caller's classes; on a clash, the caller wins.
-      className={cn("rounded-xl border border-slate-200 p-4", className)}
+      className={cn("rounded-xl border border-line p-4", className)}
     />
   );
 }

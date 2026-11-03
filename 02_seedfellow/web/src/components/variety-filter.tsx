@@ -33,7 +33,7 @@ export function VarietyFilter({
     <Card className="flex flex-wrap items-end gap-3">
       {/* This is the search bar from the previous night 6 */}
       <div className="flex flex-col gap-1">
-        <label htmlFor="search" className="font-medium text-slate-500 text-xs">
+        <label htmlFor="search" className="font-medium text-bark text-xs">
           Search
         </label>
         <input
@@ -46,12 +46,12 @@ export function VarietyFilter({
             onSearch(event.target.value);
           }}
           placeholder="z.B. Berner Rose"
-          className="h-9 rounded-lg border border-slate-300 px-2 text-sm"
+          className="h-9 rounded-lg border border-stone px-2 text-sm"
         />
       </div>
       {/* Tag filter bar, to filter it accordingly */}
       <div className="flex flex-col gap-1">
-        <label htmlFor="kind" className="font-medium text-slate-500 text-xs">
+        <label htmlFor="kind" className="font-medium text-bark text-xs">
           Kind
         </label>
         <select
@@ -62,7 +62,7 @@ export function VarietyFilter({
             // one of the options above, which is true because we wrote them.
             onKind(event.target.value as Kind | "all");
           }}
-          className="h-9 rounded-lg border border-slate-300 px-2 text-sm"
+          className="h-9 rounded-lg border border-stone px-2 text-sm"
         >
           <option value="all">Everything</option>
           {KINDS.map((option) => (
@@ -82,11 +82,11 @@ export function VarietyFilter({
           render={
             <button
               type="button"
-              className="h-6 w-11 bg-slate-500 shrink-0 rounded-full p-0.5  data-checked:bg-slate-900 motion-safe:transition-colors"
+              className="h-6 w-11 bg-stone shrink-0 rounded-full p-0.5  data-checked:bg-moss motion-safe:transition-colors"
             />
           }
         >
-          <Switch.Thumb className="block h-5 w-5 rounded-full bg-white shadow-sm data-checked:translate-x-5 motion-safe:transition-transform" />
+          <Switch.Thumb className="block h-5 w-5 rounded-full bg-card shadow-sm data-checked:translate-x-5 motion-safe:transition-transform" />
         </Switch.Root>
         <label
           htmlFor="stock"
@@ -100,7 +100,7 @@ export function VarietyFilter({
       <button
         type="button"
         onClick={onClear}
-        className="h-9 rounded-lg border border-slate-300 px-3 font-medium text-sm"
+        className="h-9 rounded-lg border border-stone px-3 font-medium text-sm"
       >
         Clear
       </button>

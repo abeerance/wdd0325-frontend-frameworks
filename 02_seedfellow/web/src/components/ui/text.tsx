@@ -22,8 +22,8 @@ interface TextProps extends ComponentPropsWithoutRef<"p"> {
 // line here and one in the union above.
 const VARIANTS = {
   title: "font-medium text-lg",
-  body: "text-slate-700",
-  muted: "text-slate-500 text-sm italic",
+  body: "text-ink",
+  muted: "text-bark text-sm italic",
 };
 
 // This is the simplified solution, which is valid but a bit limitiert
