@@ -1,28 +1,12 @@
+import Link from "next/link";
 import { BorrowDialog } from "@/components/borrow-dialog";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 import type { Variety } from "@/data/varieties";
+import { PacketLine } from "./packet-line";
 
 interface VarietyCardProps {
   variety: Variety;
-}
-
-// Shares VarietyCardProps: both take one variety and nothing else.
-function PacketLine({ variety }: VarietyCardProps) {
-  // Early return: the retired case is answered first, the rest is the normal case.
-  if (variety.retired) {
-    return (
-      <Text className="mt-2 font-medium text-sm text-amber-700">
-        Retired from the library
-      </Text>
-    );
-  }
-
-  return (
-    <Text className="mt-2 font-medium text-sm">
-      {variety.packets} packets on the shelf
-    </Text>
-  );
 }
 
 // No "use client" any more: the card has no state or handlers, so it renders on
@@ -30,7 +14,18 @@ function PacketLine({ variety }: VarietyCardProps) {
 export function VarietyCard({ variety }: VarietyCardProps) {
   return (
     <Card as="article">
-      <Text variant="title">{variety.name}</Text>
+      {/* The link sits inside the heading, not around the card: the heading keeps its
+			    place in the page outline, and a screen reader's list of links reads
+			    "Genovese", not a whole card. min-h-11 makes the name a tap target of at
+			    least 44px without changing how big the text looks. */}
+      <h2 className="font-medium text-lg">
+        <Link
+          href={`/varieties/${variety.id}`}
+          className="inline-flex min-h-11 items-center rounded-sm underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-moss focus-visible:outline-offset-2"
+        >
+          {variety.name}
+        </Link>
+      </h2>
       <Text variant="muted">{variety.species}</Text>
       {/* <details> replaces the isOpen state: the browser opens and closes it,
 			    and tells screen readers whether it is expanded, with no JavaScript.

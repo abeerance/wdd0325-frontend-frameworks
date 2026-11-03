@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Footer } from "@/components/footer";
 import { Logo } from "@/components/logo";
+import { SiteNav } from "@/components/site-nav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,7 +17,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Seedfellow",
-  description: "Seefellow",
+  description:
+    "A neighbourhood seed library. Borrow a packet, grow it, bring some back.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -27,8 +29,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <header className="border-line border-b bg-card">
-          <div className="mx-auto flex min-h-16 w-full max-w-6xl items-center px-4 sm:px-6">
+          <div className="mx-auto flex min-h-16 w-full max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2 sm:px-6">
             <Logo />
+            <SiteNav />
           </div>
         </header>
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6 lg:py-14">
