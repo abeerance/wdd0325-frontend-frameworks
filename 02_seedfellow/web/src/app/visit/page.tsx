@@ -27,6 +27,7 @@ const FIRST_VISIT: Step[] = [
   },
 ];
 
+// A static page: no state, no data. The cards are plain markup around the shared Card component.
 export default function VisitPage() {
   return (
     <div className="flex flex-col gap-10 lg:gap-14">
@@ -80,6 +81,8 @@ export default function VisitPage() {
       <section className="flex flex-col gap-5">
         <h2 className="font-semibold text-2xl text-ink">Your first visit</h2>
         <ol className="grid gap-6 border-line border-y py-6 sm:grid-cols-3 sm:gap-8">
+          {/* Each <li> gets the step's own id as its key, which never changes. index + 1 is only the
+              number on screen: an index as key would mix up the items if the list were ever reordered. */}
           {FIRST_VISIT.map((step, index) => (
             <li key={step.id} className="flex gap-4 sm:flex-col sm:gap-3">
               <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-moss font-semibold text-card">

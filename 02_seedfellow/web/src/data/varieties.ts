@@ -1,6 +1,11 @@
 import "server-only";
 import type { Variety } from "@/lib/types";
 
+// The five records, kept apart from the markup. The first line of this file, import "server-only",
+// makes the build fail if a client component ever imports it, so the data cannot end up in the
+// browser's JavaScript. Only src/lib/varieties.ts imports it: pages ask the functions there, so
+// night 15 can replace this array with API calls without touching a page.
+// Typing it Variety[] makes the compiler check every record against the interface.
 export const VARIETIES: Variety[] = [
   {
     id: 1,
@@ -41,6 +46,7 @@ export const VARIETIES: Variety[] = [
       "A black-husked oat, kept by the library as a green manure as much as a grain. Cut it before it seeds and it feeds the soil instead of you.",
     sowing: "March and April",
     packets: 0,
+    // The one retired variety: no packets and no borrow button, only a note that it is retired.
     retired: true,
   },
   {

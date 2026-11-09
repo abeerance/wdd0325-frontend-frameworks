@@ -42,6 +42,8 @@ export function CatalogueFilter({ entries }: CatalogueFilterProps) {
 
   return (
     <>
+      {/* Lifting state up: this component owns the filters, the bar only shows them and reports changes,
+          so the bar and the list always agree. */}
       <VarietyFilter
         search={search}
         onSearch={setSearch}

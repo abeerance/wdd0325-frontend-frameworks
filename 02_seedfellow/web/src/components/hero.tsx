@@ -1,6 +1,8 @@
 import { HowItWorks } from "./how-it-works";
 import { Text } from "./ui/text";
 
+// The opening block of the home page: the pitch on the left and a placeholder picture on the right
+// from the lg breakpoint up. Plain markup with no state, so it renders on the server.
 export function Hero() {
   return (
     <div className="flex flex-col gap-12">

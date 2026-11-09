@@ -1,3 +1,5 @@
+// Types only. They are erased at build time, so a server file and a client file can both import
+// them. The data and its functions are server-only; this file is deliberately not.
 // This kind type will be needed for the filter bar for example
 export type Kind = "vegetable" | "herb" | "flower" | "grain";
 

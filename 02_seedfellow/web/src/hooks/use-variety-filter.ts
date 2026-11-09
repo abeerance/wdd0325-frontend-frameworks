@@ -1,7 +1,24 @@
 import { useState } from "react";
 import type { Kind, Variety } from "@/lib/types";
 
-// The filter's state and the list it narrows.
+// App was handling both filtering and page markup. This hook separates those jobs.
+// Accept the list from the caller so filtering does not depend on one fixed catalogue.
+//
+// <T> is a generic: a type parameter, filled in by TypeScript from whatever the
+// caller passes. Call it with CatalogueEntry[] and T becomes CatalogueEntry; call it
+// with Variety[] and T becomes Variety. Nobody writes the type out by hand.
+//
+// Why: the hook filters, it does not care what else an item carries. With a plain
+// Variety[] parameter, shelf would come back as Variety[] and the caller would lose
+// its extra fields (CatalogueEntry's card). With T, what goes in comes back out.
+//
+// `extends` is the constraint: T may be any shape, as long as it has at least the
+// three fields the filter reads. Pick<Variety, ...> builds that minimum from
+// Variety, so a renamed field on Variety breaks here instead of drifting silently.
+// Passing something without packets is a type error at the call site.
+//
+// The return type is not written out: TypeScript infers it, and shelf comes back as T[], not
+// Variety[]. That is where the generic pays off for the caller.
 export function useVarietyFilter<
   T extends Pick<Variety, "name" | "kind" | "packets">,
 >(varieties: T[]) {

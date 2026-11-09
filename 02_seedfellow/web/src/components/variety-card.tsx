@@ -14,6 +14,9 @@ interface VarietyCardProps {
 export function VarietyCard({ variety }: VarietyCardProps) {
   return (
     <Card as="article">
+      {/* The link sits inside the heading, not around the card: the heading keeps its place in the page
+          outline, and a screen reader's list of links reads "Genovese", not a whole card. min-h-11 makes
+          the name a tap target of at least 44px without changing how big the text looks. */}
       <h2 className="font-medium text-lg">
         <Link
           href={`/varieties/${variety.id}`}
@@ -23,6 +26,9 @@ export function VarietyCard({ variety }: VarietyCardProps) {
         </Link>
       </h2>
       <Text variant="muted">{variety.species}</Text>
+      {/* <details> replaces the isOpen state: the browser opens and closes it, and tells screen readers
+          whether it is expanded, with no JavaScript. group-open: styles the summary label from the
+          details' open state. */}
       <details className="group mt-3">
         <summary className="w-fit cursor-pointer list-none rounded-lg border border-stone px-3 py-1.5 font-medium text-sm focus-visible:outline-2 focus-visible:outline-moss focus-visible:outline-offset-2">
           <span className="group-open:hidden">Read more</span>
@@ -34,6 +40,8 @@ export function VarietyCard({ variety }: VarietyCardProps) {
       <PacketLine variety={variety} />
       {!variety.retired && (
         <div className="mt-3 flex gap-2">
+          {/* Only plain values cross from this server component into the client dialog; see
+              BorrowDialogProps for why. */}
           <BorrowDialog
             name={variety.name}
             packetsAvailable={variety.packets}

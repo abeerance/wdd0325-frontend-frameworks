@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Text } from "@/components/ui/text";
 
+// Shown when no route matches the address, and when a page calls notFound(). It renders inside the
+// root layout, so the header and footer stay. A missing page still offers a way back, not a dead end.
 export default function NotFound() {
   return (
     <div className="flex flex-col items-start gap-4">

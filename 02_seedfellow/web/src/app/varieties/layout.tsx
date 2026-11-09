@@ -1,5 +1,8 @@
 import Link from "next/link";
 
+// A layout wraps every page below /varieties. It stays mounted while the visitor moves from one
+// variety to the next, so the Back link is written once here, not in every page.
+// LayoutProps<"/varieties"> types `children` the way the root layout does.
 export default function VarietiesLayout({
   children,
 }: LayoutProps<"/varieties">) {
