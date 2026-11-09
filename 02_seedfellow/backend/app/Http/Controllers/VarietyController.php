@@ -24,10 +24,12 @@ class VarietyController extends Controller
             ->when($request->has('kind'), fn (Builder $query) => $query->where('kind', $request->string('kind')))
             ->when($request->has('sowing_month'), fn (Builder $query) => $query->whereJsonContains('sowing_months', $request->integer('sowing_month')))
             ->when($request->has('q'), fn (Builder $query) => $query->where(function (Builder $match) use ($request): void {
-                // % and _ are wildcards to ilike, and \ is its escape character. Escaping all
-                // three makes a search for "100%" look for those four characters.
-                $term = '%'.addcslashes($request->string('q')->value(), '\\%_').'%';
-                $match->where('name', 'ilike', $term)->orWhere('species', 'ilike', $term);
+                // % and _ are wildcards to like, and \ is the escape character named below. Escaping
+                // all three makes a search for "100%" look for those four characters. Both sides are
+                // lowered because PostgreSQL's like tells A from a and SQLite's does not.
+                $term = '%'.addcslashes(mb_strtolower($request->string('q')->value()), '\\%_').'%';
+                $match->whereRaw("lower(name) like ? escape '\\'", [$term])
+                    ->orWhereRaw("lower(species) like ? escape '\\'", [$term]);
             }))
             ->when($request->has('in_stock'), fn (Builder $query) => $request->boolean('in_stock')
                 ? $query->inStock()

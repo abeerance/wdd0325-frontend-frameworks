@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Events\ConnectionEstablished;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -19,6 +21,23 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // SQLite's lower() folds ASCII capitals only, so "Épeautre" would never match a search
+        // lowered by PHP. PostgreSQL lowers every script; this gives SQLite the same behaviour.
+        Event::listen(ConnectionEstablished::class, function (ConnectionEstablished $event): void {
+            // `composer install` boots the app before the database file exists, and opening the
+            // connection then would fail. The first connection after the file exists gets the function.
+            $database = (string) $event->connection->getConfig('database');
+            if ($event->connection->getDriverName() !== 'sqlite' || ($database !== ':memory:' && ! is_file($database))) {
+                return;
+            }
+
+            $pdo = $event->connection->getPdo();
+            $lower = fn (?string $value): ?string => $value === null ? null : mb_strtolower($value);
+            method_exists($pdo, 'createFunction')
+                ? $pdo->createFunction('lower', $lower, 1)
+                : $pdo->sqliteCreateFunction('lower', $lower, 1);
+        });
+
         // A signed-in member has an allowance of their own, wherever they connect from. A
         // frontend that calls the API from its server sends every member from one address,
         // and keying by address would make them all share a single bucket.

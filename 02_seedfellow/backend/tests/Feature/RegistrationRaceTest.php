@@ -26,13 +26,21 @@ class RegistrationRaceTest extends TestCase
      */
     protected function tearDown(): void
     {
-        $this->truncateTablesForAllConnections();
+        if (DB::getDriverName() === 'pgsql') {
+            $this->truncateTablesForAllConnections();
+        }
 
         parent::tearDown();
     }
 
     public function test_two_registrations_racing_for_one_address_let_only_one_in(): void
     {
+        // The behaviour under test is PostgreSQL's: it abandons a transaction once one statement fails.
+        // SQLite does not, and its in-memory database holds no tables outside the test's transaction.
+        if (DB::getDriverName() !== 'pgsql') {
+            $this->markTestSkipped('Needs PostgreSQL: run with DB_CONNECTION=pgsql.');
+        }
+
         // Another registration for the same address lands after the unique rule has
         // passed and before this one is saved.
         User::creating(function (User $user): void {

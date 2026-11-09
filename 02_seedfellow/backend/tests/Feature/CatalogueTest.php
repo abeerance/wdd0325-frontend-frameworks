@@ -79,6 +79,19 @@ class CatalogueTest extends TestCase
             ->assertJsonPath('data.0.id', $variety->id);
     }
 
+    public function test_the_search_finds_a_name_with_an_accented_capital_however_it_is_typed(): void
+    {
+        $variety = Variety::factory()->create(['name' => 'Épeautre']);
+        Variety::factory()->create(['name' => 'Emmer']);
+
+        foreach (['épeautre', 'ÉPEAUTRE', 'Épeautre'] as $term) {
+            $this->getJson('/api/varieties?'.http_build_query(['q' => $term]))
+                ->assertOk()
+                ->assertJsonPath('meta.total', 1)
+                ->assertJsonPath('data.0.id', $variety->id);
+        }
+    }
+
     public function test_a_search_for_a_wildcard_character_matches_it_literally(): void
     {
         $percent = Variety::factory()->create(['name' => 'Hundred%Rye']);

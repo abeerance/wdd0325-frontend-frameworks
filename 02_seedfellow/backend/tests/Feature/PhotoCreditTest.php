@@ -12,6 +12,7 @@ use App\ValueObjects\PhotoCredit;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -189,6 +190,11 @@ class PhotoCreditTest extends TestCase
 
     public function test_the_database_refuses_a_credit_without_a_photo_whatever_writes_it(): void
     {
+        // The check constraint exists on PostgreSQL only: SQLite cannot add one to a table that exists.
+        if (DB::getDriverName() !== 'pgsql') {
+            $this->markTestSkipped('Needs PostgreSQL: run with DB_CONNECTION=pgsql.');
+        }
+
         $this->expectException(QueryException::class);
 
         Variety::factory()->create(['photo_credit' => new PhotoCredit('Ermell', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/', false)]);

@@ -19,9 +19,11 @@
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array"/>
-        <!-- The app leans on PostgreSQL: jsonb months, ilike search, a row lock on the last packet.
-             SQLite would answer differently, so the tests run against the real engine. -->
-        <env name="DB_DATABASE" value="seedfellow_test"/>
+        <!-- The tests run on SQLite in memory, the engine students use. The Docker and production
+             setup runs PostgreSQL: run the suite against it with DB_CONNECTION=pgsql in the shell
+             (a variable already set there wins over these defaults). -->
+        <env name="DB_CONNECTION" value="sqlite"/>
+        <env name="DB_DATABASE" value=":memory:"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="SANCTUM_STATEFUL_DOMAINS" value="localhost"/>
     </php>

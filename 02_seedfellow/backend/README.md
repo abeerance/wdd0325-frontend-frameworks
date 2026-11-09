@@ -4,15 +4,28 @@ The Laravel side of Seedfellow, the neighbourhood seed library. It is two things
 
 ## Running it
 
-One command starts the API with no Docker, from this `backend/` folder:
+One command starts the API with no Docker and no database server, from this `backend/` folder:
 
 ```bash
 ./serve.sh
 ```
 
-It needs [Nix](https://nixos.org/download), which supplies PHP 8.5, Composer and PostgreSQL 18, so nothing else has to be installed. The first run downloads them, creates the database in `.pgdata/` and seeds it. The API answers on `http://localhost:8080`. Press Ctrl+C to stop it, and run the script again to start from the same data. Delete `.pgdata/` to start from an empty library.
+It needs PHP 8.3 or newer with the SQLite extension (`pdo_sqlite`) and [Composer](https://getcomposer.org). The first run installs the PHP packages, creates `.env` and the app key, creates the SQLite file `database/database.sqlite` (git-ignored) and seeds it. The API answers on `http://localhost:8080`. Press Ctrl+C to stop it, and run the script again to start from the same data. Delete `database/database.sqlite` to start over from the seed data.
 
-Without Nix, install PHP 8.3 or newer with the `intl` and `pdo_pgsql` extensions, Composer and PostgreSQL 18, then follow the Docker steps below with `php artisan ...` in place of `docker compose exec php php artisan ...`, and set `DB_HOST=127.0.0.1` in `.env`.
+The script is bash. On Windows, run it in WSL or Git Bash, or type its steps in PowerShell:
+
+```powershell
+composer install
+copy .env.example .env
+php artisan key:generate
+$env:DB_CONNECTION = "sqlite"
+$env:DB_DATABASE = "$PWD\database\database.sqlite"
+New-Item database\database.sqlite -ItemType File
+php artisan migrate --seed
+php -S 127.0.0.1:8080 -t public public/index.php
+```
+
+SQLite answers the same as PostgreSQL for everything the frontend does. The one difference is that SQLite has no database-level photo constraints: the photo code keeps a photo's path, version and credit together on both. The Docker and production stacks below run PostgreSQL, and `DB_CONNECTION=pgsql php artisan test` runs the full suite against it.
 
 ## Running it with Docker
 

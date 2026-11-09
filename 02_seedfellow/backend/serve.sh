@@ -1,41 +1,38 @@
 #!/usr/bin/env bash
-# Runs the Seedfellow API with no Docker: PHP and PostgreSQL come from Nix, the database
-# lives in .pgdata (git-ignored), and the API answers on http://localhost:8080.
-# Stop it with Ctrl+C. Run it again and it starts from the same data.
+# Runs the Seedfellow API with no Docker and no database server: the data lives in the SQLite
+# file database/database.sqlite (git-ignored), and the API answers on http://localhost:8080.
+# Needs PHP 8.3 or newer with the SQLite extension, and Composer. Stop it with Ctrl+C. Run it again and it starts from the same
+# data; delete database/database.sqlite to start over from the seed data.
 set -euo pipefail
 cd "$(dirname "$0")"
 
-# Re-run this script inside a shell that has PHP and PostgreSQL.
-if [ -z "${SEEDFELLOW_IN_NIX:-}" ]; then
+if ! command -v php >/dev/null || ! command -v composer >/dev/null; then
+  if [ -n "${SEEDFELLOW_IN_NIX:-}" ] || ! command -v nix >/dev/null; then
+    echo "Seedfellow needs PHP 8.3 or newer and Composer, and found neither on this machine." >&2
+    echo "Install them (php.net, getcomposer.org), then run this script again." >&2
+    exit 1
+  fi
   exec env SEEDFELLOW_IN_NIX=1 nix --extra-experimental-features "nix-command flakes" \
-    shell nixpkgs#php85 nixpkgs#php85Packages.composer nixpkgs#postgresql_18 \
-    --command "$0" "$@"
+    shell nixpkgs#php85 nixpkgs#php85Packages.composer --command "$0" "$@"
 fi
 
-PGPORT=5433
-PGDATA="$PWD/.pgdata"
+php -r 'exit(extension_loaded("pdo_sqlite") ? 0 : 1);' || {
+  echo "This PHP has no SQLite extension (pdo_sqlite). Enable it in php.ini, then run this again." >&2
+  exit 1
+}
 
-[ -f .env ] || { cp .env.example .env; php artisan key:generate --force; }
 [ -f vendor/autoload.php ] || composer install --no-interaction --prefer-dist
+[ -f .env ] || cp .env.example .env
+grep -q '^APP_KEY=.' .env || php artisan key:generate --force
 
-fresh=no
-if [ ! -d "$PGDATA" ]; then
-  initdb -D "$PGDATA" -U postgres --auth=trust >/dev/null
-  fresh=yes
-fi
-pg_ctl -D "$PGDATA" -o "-p $PGPORT -c listen_addresses=127.0.0.1" -l "$PGDATA/server.log" -w start >/dev/null
-trap 'pg_ctl -D "$PGDATA" -m fast stop >/dev/null' EXIT
+# These win over .env, which is written for Docker (DB_HOST=db and a PostgreSQL user).
+export DB_CONNECTION=sqlite DB_DATABASE="$PWD/database/database.sqlite"
 
-# These win over .env, which is written for Docker (DB_HOST=db).
-export DB_CONNECTION=pgsql DB_HOST=127.0.0.1 DB_PORT=$PGPORT DB_DATABASE=seedfellow \
-  DB_USERNAME=seedfellow DB_PASSWORD=seedfellow
-
-if [ "$fresh" = yes ]; then
-  psql -h 127.0.0.1 -p $PGPORT -U postgres -q \
-    -c "create user seedfellow password 'seedfellow'" \
-    -c "create database seedfellow owner seedfellow"
-  php artisan migrate --seed --force
+if [ ! -f database/database.sqlite ]; then
+  touch database/database.sqlite
+  # An empty file left by a failed run would look like a finished database next time.
+  php artisan migrate --seed --force || { rm -f database/database.sqlite; exit 1; }
 fi
 
 echo "Seedfellow API on http://localhost:8080 (Ctrl+C to stop)"
-php -S 127.0.0.1:8080 -t public public/index.php
+exec php -S 127.0.0.1:8080 -t public public/index.php

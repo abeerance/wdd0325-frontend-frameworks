@@ -23,7 +23,10 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        DB::statement('alter table harvest_notes add constraint harvest_notes_photo_version_check check ((photo_path is null) = (photo_version is null))');
+        // PostgreSQL only, for the reason given in the varieties migration.
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('alter table harvest_notes add constraint harvest_notes_photo_version_check check ((photo_path is null) = (photo_version is null))');
+        }
     }
 
     public function down(): void

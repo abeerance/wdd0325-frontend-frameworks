@@ -29,9 +29,12 @@ return new class extends Migration
         });
 
         // A path without a version would be a photo no URL can cache, and a credit without a
-        // photo credits nothing. The database refuses both, whatever code writes the row.
-        DB::statement('alter table varieties add constraint varieties_photo_version_check check ((photo_path is null) = (photo_version is null))');
-        DB::statement('alter table varieties add constraint varieties_photo_credit_check check (photo_credit is null or photo_path is not null)');
+        // photo credits nothing. PostgreSQL refuses both, whatever code writes the row. SQLite cannot
+        // add a constraint to a table that exists, so there the photo code alone keeps the pair together.
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('alter table varieties add constraint varieties_photo_version_check check ((photo_path is null) = (photo_version is null))');
+            DB::statement('alter table varieties add constraint varieties_photo_credit_check check (photo_credit is null or photo_path is not null)');
+        }
     }
 
     public function down(): void
