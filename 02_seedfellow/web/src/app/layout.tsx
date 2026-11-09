@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Footer } from "@/components/footer";
 import { Logo } from "@/components/logo";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteNav } from "@/components/site-nav";
 
 // next/font downloads these fonts at build time and serves them from this site, so the page
@@ -47,7 +47,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6 lg:py-14">
           {children}
         </main>
-        <Footer />
+        <SiteFooter />
       </body>
     </html>
   );

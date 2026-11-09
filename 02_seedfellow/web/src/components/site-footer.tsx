@@ -5,7 +5,7 @@ import { OpeningHours } from "./opening-hours";
 
 // The bottom of every page. It sits in the root layout after <main>, directly in the
 // <body>, which is what makes it the page's contentinfo landmark.
-export function Footer() {
+export function SiteFooter() {
   return (
     <footer className="border-line border-t bg-card">
       <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-3">
