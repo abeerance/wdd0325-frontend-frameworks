@@ -1,15 +1,18 @@
 "use client";
 
 import { Switch } from "@base-ui/react/switch";
-import type { Kind } from "../data/varieties";
-import { Card } from "./ui/card";
+import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/cn";
+import type { Kind } from "@/lib/types";
 
-// The kinds the select offers, in the order they appear. A constant outside the
-// component, because it never changes and does not need to be rebuilt every render.
+/** Every kind a variety can be, in the order the filter offers them. */
 const KINDS: Kind[] = ["vegetable", "herb", "flower", "grain"];
 
-// The filter bar owns nothing. App holds the three values (lifting state up) and
-// passes each one down with a function to change it: value in, change out.
+const FIELD = "flex flex-col gap-1.5";
+const LABEL = "font-medium text-bark text-xs uppercase tracking-wider";
+const CONTROL =
+  "min-h-11 rounded-2xl border border-stone bg-card px-3 text-ink text-sm focus-visible:outline-2 focus-visible:outline-moss focus-visible:outline-offset-2";
+
 interface VarietyFilterProps {
   search: string;
   onSearch: (search: string) => void;
@@ -30,39 +33,30 @@ export function VarietyFilter({
   onClear,
 }: VarietyFilterProps) {
   return (
-    <Card className="flex flex-wrap items-end gap-3">
-      {/* This is the search bar from the previous night 6 */}
-      <div className="flex flex-col gap-1">
-        <label htmlFor="search" className="font-medium text-bark text-xs">
+    <Card className="grid gap-4 bg-dew sm:grid-cols-2 lg:flex lg:flex-wrap lg:items-end">
+      <div className={cn(FIELD, "lg:min-w-64 lg:flex-1")}>
+        <label htmlFor="search" className={LABEL}>
           Search
         </label>
         <input
           id="search"
-          type="text"
-          // Controlled input: the field always shows what search holds.
+          type="search"
           value={search}
-          // Each keystroke goes up to App -> re-render -> shelf refilters.
-          onChange={(event) => {
-            onSearch(event.target.value);
-          }}
-          placeholder="z.B. Berner Rose"
-          className="h-9 rounded-lg border border-stone px-2 text-sm"
+          onChange={(event) => onSearch(event.target.value)}
+          placeholder="Berner Rose"
+          className={CONTROL}
         />
       </div>
-      {/* Tag filter bar, to filter it accordingly */}
-      <div className="flex flex-col gap-1">
-        <label htmlFor="kind" className="font-medium text-bark text-xs">
+
+      <div className={FIELD}>
+        <label htmlFor="kind" className={LABEL}>
           Kind
         </label>
         <select
           id="kind"
           value={kind}
-          onChange={(event) => {
-            // A select always hands back a string. `as` tells TypeScript it is
-            // one of the options above, which is true because we wrote them.
-            onKind(event.target.value as Kind | "all");
-          }}
-          className="h-9 rounded-lg border border-stone px-2 text-sm"
+          onChange={(event) => onKind(event.target.value as Kind | "all")}
+          className={CONTROL}
         >
           <option value="all">Everything</option>
           {KINDS.map((option) => (
@@ -72,37 +66,32 @@ export function VarietyFilter({
           ))}
         </select>
       </div>
-      {/* inStock boolean filter */}
-      <div className="flex h-9 items-center">
+
+      <div className="flex min-h-11 items-center sm:self-end">
         <Switch.Root
           id="stock"
           nativeButton
+          render={<button type="button" />}
           checked={inStock}
           onCheckedChange={onInStock}
-          render={
-            <button
-              type="button"
-              className="h-6 w-11 bg-stone shrink-0 rounded-full p-0.5  data-checked:bg-moss motion-safe:transition-colors"
-            />
-          }
+          className="h-6 w-11 shrink-0 rounded-full bg-stone p-0.5 data-checked:bg-moss focus-visible:outline-2 focus-visible:outline-moss focus-visible:outline-offset-2 motion-safe:transition-colors"
         >
-          <Switch.Thumb className="block h-5 w-5 rounded-full bg-card shadow-sm data-checked:translate-x-5 motion-safe:transition-transform" />
+          <Switch.Thumb className="block size-5 rounded-full bg-card shadow-sm data-checked:translate-x-5 motion-safe:transition-transform" />
         </Switch.Root>
         <label
           htmlFor="stock"
-          className="flex h-9 flex-1 items-center pl-3 text-sm"
+          className="flex min-h-11 flex-1 items-center pl-3 text-ink text-sm"
         >
           On the shelf
         </label>
       </div>
-      {/* No arrow needed here: onClear takes nothing, so the click event it
-			    receives is simply ignored. */}
+
       <button
         type="button"
         onClick={onClear}
-        className="h-9 rounded-lg border border-stone px-3 font-medium text-sm"
+        className="min-h-11 rounded-full px-4 font-medium text-moss text-sm underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-moss focus-visible:outline-offset-2 sm:justify-self-start"
       >
-        Clear
+        Clear filters
       </button>
     </Card>
   );

@@ -1,10 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { Variety } from "@/data/varieties";
+import { CatalogueResults } from "@/components/catalogue-results";
+import { VarietyFilter } from "@/components/variety-filter";
 import { useVarietyFilter } from "@/hooks/use-variety-filter";
-import { CatalogueResults } from "./catalogue-results";
-import { VarietyFilter } from "./variety-filter";
+import type { Variety } from "@/lib/types";
 
 // One row of the catalogue: the plain data the filter needs, plus the card already
 // rendered. Pick<Variety, ...> is a built-in generic type: it takes Variety and a
@@ -42,8 +42,6 @@ export function CatalogueFilter({ entries }: CatalogueFilterProps) {
 
   return (
     <>
-      {/* Lifting state up: this component owns the filters, the bar only shows
-			    them and reports changes, so the bar and the list always agree. */}
       <VarietyFilter
         search={search}
         onSearch={setSearch}

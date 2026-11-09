@@ -1,14 +1,12 @@
 import { CatalogueFilter } from "@/components/catalogue-filter";
 import { VarietyCard } from "@/components/variety-card";
-import { VARIETIES } from "@/data/varieties";
+import { getVarieties } from "@/lib/varieties";
 
-// No "use client": this is a server component. It renders every card once on the
-// server, then hands the client filter only what it needs to filter, plus the
-// finished cards to show or hide.
-export function Catalogue() {
+export async function Catalogue() {
+  const varieties = await getVarieties();
   // No type annotation needed: the object shape matches CatalogueEntry, which
   // TypeScript checks where entries is passed to CatalogueFilter.
-  const entries = VARIETIES.map((variety) => ({
+  const entries = varieties.map((variety) => ({
     id: variety.id,
     name: variety.name,
     kind: variety.kind,

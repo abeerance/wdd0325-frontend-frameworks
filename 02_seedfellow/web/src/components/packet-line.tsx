@@ -1,5 +1,5 @@
-import type { Variety } from "@/data/varieties";
-import { Text } from "./ui/text";
+import { Text } from "@/components/ui/text";
+import type { Variety } from "@/lib/types";
 
 interface PacketLineProps {
   variety: Variety;
@@ -11,14 +11,14 @@ export function PacketLine({ variety }: PacketLineProps) {
   // Early return: the retired case is answered first, the rest is the normal case.
   if (variety.retired) {
     return (
-      <Text className="mt-2 font-medium text-sm text-amber-700">
+      <Text className="font-medium text-sm text-amber-700">
         Retired from the library
       </Text>
     );
   }
 
   return (
-    <Text className="mt-2 font-medium text-sm">
+    <Text className="font-medium text-sm">
       {variety.packets} {variety.packets === 1 ? "packet" : "packets"} on the
       shelf
     </Text>
