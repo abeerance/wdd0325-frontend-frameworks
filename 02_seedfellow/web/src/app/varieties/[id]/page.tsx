@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { BorrowDialog } from "@/components/borrow-dialog";
+import { MoreLikeThis } from "@/components/more-like-this";
 import { PacketLine } from "@/components/packet-line";
 import { Text } from "@/components/ui/text";
+import { VarietyNav } from "@/components/variety-nav";
 import { getVarieties, getVariety } from "@/lib/varieties";
 
 // One entry per variety the library holds, so each of their pages is built ahead of time.
@@ -36,28 +38,32 @@ async function VarietyDetails({ params }: VarietyParams) {
   }
 
   return (
-    <article className="flex flex-col gap-8">
-      <div className="flex flex-col gap-4">
-        <header className="flex flex-col gap-1">
-          <p className="font-medium text-moss text-sm uppercase tracking-widest">
-            {variety.kind}
-          </p>
-          <h1 className="font-semibold text-4xl text-ink sm:text-5xl">
-            {variety.name}
-          </h1>
-          <Text variant="muted">{variety.species}</Text>
-        </header>
+    <>
+      <article className="flex flex-col gap-8">
+        <div className="flex flex-col gap-4">
+          <header className="flex flex-col gap-1">
+            <p className="font-medium text-moss text-sm uppercase tracking-widest">
+              {variety.kind}
+            </p>
+            <h1 className="font-semibold text-4xl text-ink sm:text-5xl">
+              {variety.name}
+            </h1>
+            <Text variant="muted">{variety.species}</Text>
+          </header>
 
-        <Text className="max-w-prose">{variety.story}</Text>
-        <Text>Sow in {variety.sowing}.</Text>
-        <PacketLine variety={variety} />
-        {!variety.retired && (
-          <BorrowDialog
-            name={variety.name}
-            packetsAvailable={variety.packets}
-          />
-        )}
-      </div>
-    </article>
+          <Text className="max-w-prose">{variety.story}</Text>
+          <Text>Sow in {variety.sowing}.</Text>
+          <PacketLine variety={variety} />
+          {!variety.retired && (
+            <BorrowDialog
+              name={variety.name}
+              packetsAvailable={variety.packets}
+            />
+          )}
+        </div>
+      </article>
+      <MoreLikeThis variety={variety} />
+      <VarietyNav variety={variety} />
+    </>
   );
 }
