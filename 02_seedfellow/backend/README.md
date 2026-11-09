@@ -1,16 +1,18 @@
-# Seedfellow backend
-
-This finished backend accompanies `../web/`. The current frontend uses local sample data; API integration starts on night 15. See the [project README](../README.md) before running the setup below.
+# Seedfellow API
 
 The Laravel side of Seedfellow, the neighbourhood seed library. It is two things at once. It is the finished state of the platform's Laravel course: every file here is what a student's own API looks like after the last lesson. And it is the fixed contract of the Next.js course, whose students clone it, run one command and build a frontend against it without changing it.
 
 ## Running it
 
-Run these commands from `02_seedfellow/backend/`. Docker Desktop must be installed.
+The project's settings live in `.env`, which is not in the repository, because it holds the database password and the application key. Make your own first:
 
-A classroom `.env` is included with a local database password. It is intentionally tracked for this exercise and applies only to the local Docker stack. `APP_KEY` starts empty; the first-setup command below creates a key for your copy. Do not reuse this configuration for a public deployment.
+```bash
+cp .env.example .env
+```
 
-Docker Desktop must be running. From this `backend/` folder, install the PHP packages from the committed lockfile, then start the services and prepare the empty database:
+Open it and put a value on the `DB_PASSWORD=` line. Anything will do on a local machine; Compose refuses to start the database without one, and Laravel reads the same file to reach it.
+
+From this `backend/` folder, install the locked PHP packages inside Docker, then bring the stack up and prepare the empty database:
 
 ```bash
 docker compose run --rm --build php composer install --no-interaction --prefer-dist
@@ -19,9 +21,34 @@ docker compose exec php php artisan key:generate
 docker compose exec php php artisan migrate --seed
 ```
 
-Run these setup steps once for a new checkout. Composer runs inside the PHP container, so you do not need PHP or Composer installed on your laptop. After setup, start the existing database and application with `docker compose up -d`. Stop them with `docker compose down`; leave the database volume in place to keep your work.
-
 The API answers on `http://localhost:8080`. `GET /up` reports the framework's own health.
+
+## Running it without Docker
+
+Docker is the supplied way, and nothing in the API needs it. You need PHP 8.3 or newer with the `intl` and `pdo_pgsql` extensions, Composer, and a PostgreSQL 18 server you can reach. The API uses PostgreSQL features (`jsonb`, `ilike`, check constraints), so SQLite will not do.
+
+Make your own settings file, then open it and set three lines: `DB_HOST=127.0.0.1`, `DB_PORT=5432` and `DB_PASSWORD=` to the password you choose below. `DB_DATABASE` and `DB_USERNAME` stay `seedfellow`.
+
+```bash
+cp .env.example .env
+```
+
+Create the database user and the database once, with a PostgreSQL superuser:
+
+```bash
+psql -U postgres -c "create user seedfellow password 'choose-a-password'" -c "create database seedfellow owner seedfellow"
+```
+
+Then, from this `backend/` folder:
+
+```bash
+composer install --no-interaction --prefer-dist
+php artisan key:generate
+php artisan migrate --seed
+php artisan serve --port=8080
+```
+
+The API answers on `http://localhost:8080`, exactly as it does under Docker, so nothing in `web/` changes. These steps were run with PHP 8.5.12 and PostgreSQL 18.6 from Nix: the catalogue, a photograph, sign-in, borrowing and a photograph upload all worked.
 
 ## What it publishes
 
@@ -207,7 +234,7 @@ Eight parallel attempts on the one remaining packet: one `201`, seven `409`, one
 
 The development stack mounts this folder into its containers. The production stack does the opposite: `Dockerfile.production` bakes the code into the image, with packages installed `--no-dev` and an optimised class map, OPcache on without timestamp checks, and every process running as a user that is not root. `compose.production.yaml` runs it as the project `seedfellow-production`, so its network is always `seedfellow-production_default`. nginx answers on port 8081, and the two stacks can run side by side.
 
-Its settings come from `.env.production`, which Git and the image build both ignore. Production configuration is separate from the classroom `.env`. Supply an application key, matching `DB_PASSWORD` and `POSTGRES_PASSWORD` values, and the database and frontend addresses for that deployment before starting this stack.
+Production settings are supplied separately in `.env.production`, which Git and the image build ignore. Configure the application key, matching database passwords and the deployment addresses before using that stack. The local development settings are not production credentials.
 
 `SANCTUM_STATEFUL_DOMAINS` and `FRONTEND_URL` in that file decide which frontend may sign in, as they do in `.env`.
 
