@@ -16,8 +16,8 @@ The script is bash. On Windows, run it in WSL or Git Bash, or type its steps in 
 
 ```powershell
 composer install
-copy .env.example .env
-php artisan key:generate
+if (!(Test-Path .env)) { copy .env.example .env }
+$env:APP_KEY = php artisan key:generate --show
 $env:DB_CONNECTION = "sqlite"
 $env:DB_DATABASE = "$PWD\database\database.sqlite"
 New-Item database\database.sqlite -ItemType File

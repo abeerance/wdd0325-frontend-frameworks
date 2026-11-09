@@ -22,6 +22,8 @@
         <!-- The tests run on SQLite in memory, the engine students use. The Docker and production
              setup runs PostgreSQL: run the suite against it with DB_CONNECTION=pgsql in the shell
              (a variable already set there wins over these defaults). -->
+        <!-- serve.sh keeps the app key out of .env, so the tests bring a throwaway one of their own. -->
+        <env name="APP_KEY" value="base64:x1Ba6BANWDWrfeYTbO1iRdS8mPQsrNSOX1dB8DIt4Hs="/>
         <env name="DB_CONNECTION" value="sqlite"/>
         <env name="DB_DATABASE" value=":memory:"/>
         <env name="SESSION_DRIVER" value="array"/>
