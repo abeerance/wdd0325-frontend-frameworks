@@ -25,11 +25,13 @@ export function CatalogueResults({ entries, total }: CatalogueResultsProps) {
           </Text>
         </Card>
       ) : (
-        <ul className="flex flex-col gap-4">
+        <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {/* The key sits on the outermost element of each item and uses the
 					    id: stable across filtering, unlike the index. */}
           {entries.map((entry) => (
-            <li key={entry.id}>{entry.card}</li>
+            <li key={entry.id} className="flex *:w-full">
+              {entry.card}
+            </li>
           ))}
         </ul>
       )}
