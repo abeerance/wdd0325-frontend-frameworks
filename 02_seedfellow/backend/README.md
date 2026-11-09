@@ -4,6 +4,18 @@ The Laravel side of Seedfellow, the neighbourhood seed library. It is two things
 
 ## Running it
 
+One command starts the API with no Docker, from this `backend/` folder:
+
+```bash
+./serve.sh
+```
+
+It needs [Nix](https://nixos.org/download), which supplies PHP 8.5, Composer and PostgreSQL 18, so nothing else has to be installed. The first run downloads them, creates the database in `.pgdata/` and seeds it. The API answers on `http://localhost:8080`. Press Ctrl+C to stop it, and run the script again to start from the same data. Delete `.pgdata/` to start from an empty library.
+
+Without Nix, install PHP 8.3 or newer with the `intl` and `pdo_pgsql` extensions, Composer and PostgreSQL 18, then follow the Docker steps below with `php artisan ...` in place of `docker compose exec php php artisan ...`, and set `DB_HOST=127.0.0.1` in `.env`.
+
+## Running it with Docker
+
 The project's settings live in `.env`, which is not in the repository, because it holds the database password and the application key. Make your own first:
 
 ```bash
@@ -22,33 +34,6 @@ docker compose exec php php artisan migrate --seed
 ```
 
 The API answers on `http://localhost:8080`. `GET /up` reports the framework's own health.
-
-## Running it without Docker
-
-Docker is the supplied way, and nothing in the API needs it. You need PHP 8.3 or newer with the `intl` and `pdo_pgsql` extensions, Composer, and a PostgreSQL 18 server you can reach. The API uses PostgreSQL features (`jsonb`, `ilike`, check constraints), so SQLite will not do.
-
-Make your own settings file, then open it and set three lines: `DB_HOST=127.0.0.1`, `DB_PORT=5432` and `DB_PASSWORD=` to the password you choose below. `DB_DATABASE` and `DB_USERNAME` stay `seedfellow`.
-
-```bash
-cp .env.example .env
-```
-
-Create the database user and the database once, with a PostgreSQL superuser:
-
-```bash
-psql -U postgres -c "create user seedfellow password 'choose-a-password'" -c "create database seedfellow owner seedfellow"
-```
-
-Then, from this `backend/` folder:
-
-```bash
-composer install --no-interaction --prefer-dist
-php artisan key:generate
-php artisan migrate --seed
-php artisan serve --port=8080
-```
-
-The API answers on `http://localhost:8080`, exactly as it does under Docker, so nothing in `web/` changes. These steps were run with PHP 8.5.12 and PostgreSQL 18.6 from Nix: the catalogue, a photograph, sign-in, borrowing and a photograph upload all worked.
 
 ## What it publishes
 

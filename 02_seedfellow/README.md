@@ -81,7 +81,7 @@ npm run build
 
 ## Backend, when we connect it
 
-Docker runs Laravel, nginx and PostgreSQL. If you would rather not use Docker, the backend README has a path that runs the same API with PHP and PostgreSQL on your machine. The supplied database seed creates the example library and demonstration members. The backend listens on <http://localhost:8080>; the frontend stays on <http://localhost:3000>.
+Start the API with `./serve.sh` in `backend/`. It needs no Docker: it runs Laravel and PostgreSQL from Nix. Docker is still there as an alternative. The supplied database seed creates the example library and demonstration members. The backend listens on <http://localhost:8080>; the frontend stays on <http://localhost:3000>.
 
 Follow [backend setup](backend/README.md#running-it) when instructed. Its first setup installs the PHP packages recorded in `composer.lock`, creates an application key and seeds an empty database. Later starts reuse the database. Keep your local configuration out of Git.
 
