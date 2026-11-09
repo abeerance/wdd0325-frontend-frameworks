@@ -10,7 +10,7 @@ One command starts the API with no Docker and no database server, from this `bac
 ./serve.sh
 ```
 
-It needs PHP 8.3 or newer with the SQLite extension (`pdo_sqlite`) and [Composer](https://getcomposer.org). The first run installs the PHP packages, creates `.env` and the app key, creates the SQLite file `database/database.sqlite` (git-ignored) and seeds it. The API answers on `http://localhost:8080`. Press Ctrl+C to stop it, and run the script again to start from the same data. Delete `database/database.sqlite` to start over from the seed data.
+It needs PHP 8.3 or newer with the SQLite extension (`pdo_sqlite`) and [Composer](https://getcomposer.org). The first run installs the PHP packages, creates `.env` if it is missing, creates the SQLite file `database/database.sqlite` (git-ignored) and seeds it. The API answers on `http://localhost:8080`. Press Ctrl+C to stop it, and run the script again to start from the same data. Delete `database/database.sqlite` to start over from the seed data. The script never edits `.env`: when it holds no app key, each start uses a new one, so signed-in sessions end when you restart it.
 
 The script is bash. On Windows, run it in WSL or Git Bash, or type its steps in PowerShell:
 

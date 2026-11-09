@@ -23,7 +23,9 @@ php -r 'exit(extension_loaded("pdo_sqlite") ? 0 : 1);' || {
 
 [ -f vendor/autoload.php ] || composer install --no-interaction --prefer-dist
 [ -f .env ] || cp .env.example .env
-grep -q '^APP_KEY=.' .env || php artisan key:generate --force
+# A class checkout may track .env in git, and a script should not rewrite a tracked file. With no key in
+# it, this run takes a fresh one from the environment instead; signed-in sessions end when it restarts.
+grep -q '^APP_KEY=.' .env || export APP_KEY="$(php artisan key:generate --show)"
 
 # These win over .env, which is written for Docker (DB_HOST=db and a PostgreSQL user).
 export DB_CONNECTION=sqlite DB_DATABASE="$PWD/database/database.sqlite"
