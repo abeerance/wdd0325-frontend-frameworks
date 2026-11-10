@@ -1,77 +1,112 @@
+// src/components/borrow-dialog.tsx
 "use client";
 
 import { Dialog } from "@base-ui/react/dialog";
 import { Field } from "@base-ui/react/field";
-import { type FormEvent, useState } from "react";
+import type { SubmitEvent } from "react";
+import { useState } from "react";
+import { cn } from "@/lib/cn";
+import type { VarietyBrief } from "@/lib/types";
 
-// Two plain values instead of the whole variety and an onBorrow function. Props
-// from a server component to a client one must be serialisable: strings and
-// numbers are, functions are not. So the borrow action now lives here, and the
-// dialog takes only the two fields it shows.
 interface BorrowDialogProps {
-  name: string;
-  packetsAvailable: number;
+	variety: VarietyBrief;
 }
 
-export function BorrowDialog({ name, packetsAvailable }: BorrowDialogProps) {
-  const [isOpen, setIsOpen] = useState(false);
+const FOCUS =
+	"focus-visible:outline-2 focus-visible:outline-moss focus-visible:outline-offset-2";
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+export function BorrowDialog({ variety }: BorrowDialogProps) {
+	// Base UI owns whether the dialog is open. This is ours: the form has to close it after
+	// a successful submit, so we need to be able to say so.
+	const [isOpen, setIsOpen] = useState(false);
 
-    const packets = Number(new FormData(event.currentTarget).get("packets"));
-    alert(`Borrowing ${packets} of ${name}`);
-    setIsOpen(false);
-  }
+	// The browser refuses to submit a form whose controls are invalid, so this only runs on
+	// a value that already passed `required`, `min` and `max`.
+	function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+		event.preventDefault();
 
-  return (
-    <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
-      <Dialog.Trigger className="rounded-lg bg-moss px-3 py-1.5 font-medium text-sm text-card focus-visible:outline-2 focus-visible:outline-moss focus-visible:outline-offset-2">
-        Borrow a packet
-      </Dialog.Trigger>
-      <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 bg-ink/40 transition-opacity data-closed:opacity-0" />
-        <Dialog.Popup className="-translate-x-1/2 -translate-y-1/2 fixed top-1/2 left-1/2 w-80 rounded-xl bg-card p-5">
-          <Dialog.Title className="font-medium text-lg">
-            Borrow {name}
-          </Dialog.Title>
-          <Dialog.Description className="mt-1 text-bark text-sm">
-            {packetsAvailable} packets on the shelf. Bring seed back at the end
-            of the season.
-          </Dialog.Description>
-          <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3">
-            <Field.Root validationMode="onBlur" className="flex flex-col gap-1">
-              <Field.Label className="font-medium text-bark text-xs">
-                Packets
-              </Field.Label>
-              <Field.Control
-                name="packets"
-                type="number"
-                required
-                min={1}
-                max={packetsAvailable}
-                defaultValue={1}
-                className="h-9 rounded-lg border border-stone px-2 text-sm data-invalid:border-clay"
-              />
-              <Field.Description className="text-bark text-xs">
-                One to {packetsAvailable}.
-              </Field.Description>
-              <Field.Error className="text-red-600 text-xs" />
-            </Field.Root>
-            <div className="flex justify-end gap-2">
-              <Dialog.Close className="rounded-lg border border-stone px-3 py-1.5 font-medium text-sm">
-                Cancel
-              </Dialog.Close>
-              <button
-                type="submit"
-                className="rounded-lg bg-moss px-3 py-1.5 font-medium text-sm text-card"
-              >
-                Borrow
-              </button>
-            </div>
-          </form>
-        </Dialog.Popup>
-      </Dialog.Portal>
-    </Dialog.Root>
-  );
+		// What borrowing does lives here, beside the form that asks for it, so every page that
+		// shows the dialog passes it data and nothing else. It records nothing yet: it only
+		// reports what was asked for.
+		const packets = Number(new FormData(event.currentTarget).get("packets"));
+		console.log("borrow", packets, variety.name);
+		setIsOpen(false);
+	}
+
+	return (
+		<Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
+			<Dialog.Trigger
+				disabled={variety.retired || variety.packets_available === 0}
+				className={cn(
+					"min-h-11 rounded-full bg-moss px-5 font-medium text-card text-sm motion-safe:transition-colors hover:bg-moss-deep disabled:cursor-not-allowed disabled:bg-stone",
+					FOCUS,
+				)}
+			>
+				Borrow a packet
+			</Dialog.Trigger>
+
+			<Dialog.Portal>
+				<Dialog.Backdrop className="fixed inset-0 bg-ink/40 backdrop-blur-[2px] motion-safe:transition-opacity data-closed:opacity-0 data-starting-style:opacity-0" />
+
+				<Dialog.Popup className="-translate-x-1/2 -translate-y-1/2 fixed top-1/2 left-1/2 w-[min(26rem,calc(100vw-2rem))] rounded-3xl border border-line bg-card p-6 shadow-xl shadow-ink/10">
+					<Dialog.Title className="font-semibold text-ink text-xl">
+						Borrow {variety.name}
+					</Dialog.Title>
+					<Dialog.Description className="mt-1 text-bark text-sm leading-relaxed">
+						{variety.packets_available}{" "}
+						{variety.packets_available === 1 ? "packet" : "packets"} on the
+						shelf. Bring seed back at the end of the season.
+					</Dialog.Description>
+
+					<form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-4">
+						<Field.Root
+							validationMode="onBlur"
+							className="flex flex-col gap-1.5"
+						>
+							<Field.Label className="font-medium text-bark text-xs uppercase tracking-wider">
+								Packets
+							</Field.Label>
+							<Field.Control
+								name="packets"
+								type="number"
+								inputMode="numeric"
+								required
+								min={1}
+								max={variety.packets_available}
+								defaultValue={1}
+								className={cn(
+									"min-h-11 rounded-2xl border border-stone bg-card px-3 text-ink data-invalid:border-clay",
+									FOCUS,
+								)}
+							/>
+							<Field.Description className="text-bark text-xs">
+								One to {variety.packets_available}.
+							</Field.Description>
+							<Field.Error className="text-clay text-xs" />
+						</Field.Root>
+
+						<div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+							<Dialog.Close
+								className={cn(
+									"min-h-11 rounded-full border border-stone px-5 font-medium text-ink text-sm hover:bg-dew",
+									FOCUS,
+								)}
+							>
+								Cancel
+							</Dialog.Close>
+							<button
+								type="submit"
+								className={cn(
+									"min-h-11 rounded-full bg-moss px-5 font-medium text-card text-sm hover:bg-moss-deep",
+									FOCUS,
+								)}
+							>
+								Borrow
+							</button>
+						</div>
+					</form>
+				</Dialog.Popup>
+			</Dialog.Portal>
+		</Dialog.Root>
+	);
 }

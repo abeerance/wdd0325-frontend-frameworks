@@ -1,69 +1,70 @@
+// src/app/varieties/[id]/page.tsx
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { BorrowDialog } from "@/components/borrow-dialog";
 import { MoreLikeThis } from "@/components/more-like-this";
 import { PacketLine } from "@/components/packet-line";
+import { PhotoCredit } from "@/components/photo-credit";
 import { Text } from "@/components/ui/text";
 import { VarietyNav } from "@/components/variety-nav";
-import { getVarieties, getVariety } from "@/lib/varieties";
-
-// One entry per variety the library holds, so each of their pages is built ahead of time.
-export async function generateStaticParams(): Promise<{ id: string }[]> {
-  const varieties = await getVarieties();
-  return varieties.map((variety) => ({ id: String(variety.id) }));
-}
+import { VarietyPhoto } from "@/components/variety-photo";
+import { formatMonths } from "@/lib/months";
+import { brief, getVariety } from "@/lib/varieties";
 
 type VarietyParams = { params: Promise<{ id: string }> };
 
-// The page does not await params; the part inside <Suspense> does.
+// The page itself does not wait. Reading `params` is a wait, and the variety comes from the
+// API, which is another. A page that waits at its top cannot show even its frame until
+// both are over. So the promise is handed down untouched, and the part that needs the
+// address waits inside <Suspense> while the fallback shows.
 export default function VarietyPage({ params }: VarietyParams) {
-  return (
-    <Suspense fallback={<Text variant="muted">Opening the variety.</Text>}>
-      <VarietyDetails params={params} />
-    </Suspense>
-  );
+	return (
+		<Suspense fallback={<Text variant="muted">Opening the variety.</Text>}>
+			<VarietyDetails params={params} />
+		</Suspense>
+	);
 }
 
 async function VarietyDetails({ params }: VarietyParams) {
-  const { id } = await params;
-  // The address is text, so the comparison is text too: '01' is not variety 1.
-  const variety = await getVariety(id);
+	const { id } = await params;
+	const variety = await getVariety(id);
 
-  // notFound() stops rendering and shows the nearest not-found.tsx. The page has already
-  // started streaming by now, so the status stays 200, and Next.js adds a noindex tag so
-  // search engines skip the address. It returns `never`, so after this `if` TypeScript
-  // knows `variety` exists.
-  if (!variety) {
-    notFound();
-  }
+	if (!variety) {
+		notFound();
+	}
 
-  return (
-    <>
-      <article className="flex flex-col gap-8">
-        <div className="flex flex-col gap-4">
-          <header className="flex flex-col gap-1">
-            <p className="font-medium text-moss text-sm uppercase tracking-widest">
-              {variety.kind}
-            </p>
-            <h1 className="font-semibold text-4xl text-ink sm:text-5xl">
-              {variety.name}
-            </h1>
-            <Text variant="muted">{variety.species}</Text>
-          </header>
+	return (
+		<div className="flex flex-col gap-12">
+			<article className="grid gap-8 lg:grid-cols-2 lg:items-start">
+				<figure className="flex flex-col gap-1">
+					<VarietyPhoto variety={variety} isMain />
+					{variety.photo_credit ? (
+						<PhotoCredit credit={variety.photo_credit} />
+					) : null}
+				</figure>
 
-          <Text className="max-w-prose">{variety.story}</Text>
-          <Text>Sow in {variety.sowing}.</Text>
-          <PacketLine variety={variety} />
-          {!variety.retired && (
-            <BorrowDialog
-              name={variety.name}
-              packetsAvailable={variety.packets}
-            />
-          )}
-        </div>
-      </article>
-      <MoreLikeThis variety={variety} />
-      <VarietyNav variety={variety} />
-    </>
-  );
+				<div className="flex flex-col gap-4">
+					<header className="flex flex-col gap-1">
+						<p className="font-medium text-moss text-sm uppercase tracking-widest">
+							{variety.kind}
+						</p>
+						<h1 className="font-semibold text-4xl text-ink sm:text-5xl">
+							{variety.name}
+						</h1>
+						<Text variant="muted">{variety.species}</Text>
+					</header>
+
+					<Text className="max-w-prose">{variety.story}</Text>
+					<Text>Sow in {formatMonths(variety.sowing_months)}.</Text>
+					<div className="flex flex-col items-start gap-3">
+						<PacketLine variety={variety} />
+						<BorrowDialog variety={brief(variety)} />
+					</div>
+				</div>
+			</article>
+
+			<MoreLikeThis variety={variety} />
+			<VarietyNav variety={variety} />
+		</div>
+	);
 }
