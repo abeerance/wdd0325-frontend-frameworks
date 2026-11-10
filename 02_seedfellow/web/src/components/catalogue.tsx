@@ -6,13 +6,14 @@ import { brief, getVarieties } from "@/lib/varieties";
 // server, and hands the finished cards to the client filter, which only decides which to show.
 // The cards therefore never become client JavaScript.
 export async function Catalogue() {
-	const varieties = await getVarieties();
-	// No type annotation needed: the object shape matches CatalogueEntry, which
-	// TypeScript checks where entries is passed to CatalogueFilter.
-	const entries = varieties.map((variety) => ({
-		...brief(variety),
-		card: <VarietyCard variety={variety} />,
-	}));
+  const varieties = await getVarieties();
+  // brief() copies only the fields the client filter reads; the card carries the rest as
+  // finished HTML. No type annotation needed: the object shape matches CatalogueEntry,
+  // which TypeScript checks where entries is passed to CatalogueFilter.
+  const entries = varieties.map((variety) => ({
+    ...brief(variety),
+    card: <VarietyCard variety={variety} />,
+  }));
 
-	return <CatalogueFilter entries={entries} />;
+  return <CatalogueFilter entries={entries} />;
 }
