@@ -21,7 +21,7 @@ class HarvestNoteTest extends TestCase
         $member = User::factory()->create();
         $borrowing = Borrowing::factory()->for($member)->returned()->create();
 
-        $this->actingAs($member)
+        $this->actingAs($member, 'sanctum')
             ->postJson("/api/borrowings/{$borrowing->id}/harvest-note", [
                 'body' => 'Sown in a trough, netted against the pigeons.',
                 'seeds_sown' => 16,
@@ -38,7 +38,7 @@ class HarvestNoteTest extends TestCase
         $member = User::factory()->create();
         $borrowing = Borrowing::factory()->for($member)->create();
 
-        $this->actingAs($member)
+        $this->actingAs($member, 'sanctum')
             ->postJson("/api/borrowings/{$borrowing->id}/harvest-note", [
                 'body' => 'Still growing.',
                 'seeds_sown' => 10,
@@ -54,7 +54,7 @@ class HarvestNoteTest extends TestCase
             'borrowing_id' => Borrowing::factory()->for($member)->returned(),
         ]);
 
-        $this->actingAs($member)
+        $this->actingAs($member, 'sanctum')
             ->postJson("/api/borrowings/{$note->borrowing_id}/harvest-note", [
                 'body' => 'A second note.',
                 'seeds_sown' => 10,
@@ -69,7 +69,7 @@ class HarvestNoteTest extends TestCase
         $member = User::factory()->create();
         $borrowing = Borrowing::factory()->for($member)->returned()->create();
 
-        $this->actingAs($member)
+        $this->actingAs($member, 'sanctum')
             ->postJson("/api/borrowings/{$borrowing->id}/harvest-note", [
                 'body' => 'Optimistic.',
                 'seeds_sown' => 5,
@@ -83,7 +83,7 @@ class HarvestNoteTest extends TestCase
     {
         $borrowing = Borrowing::factory()->returned()->create();
 
-        $this->actingAs(User::factory()->create())
+        $this->actingAs(User::factory()->create(), 'sanctum')
             ->postJson("/api/borrowings/{$borrowing->id}/harvest-note", [
                 'body' => 'Not mine to write.',
                 'seeds_sown' => 10,
@@ -101,7 +101,7 @@ class HarvestNoteTest extends TestCase
             'borrowing_id' => Borrowing::factory()->for($member)->returned(),
         ]);
 
-        $this->actingAs($member)
+        $this->actingAs($member, 'sanctum')
             ->post("/api/harvest-notes/{$note->id}/photo", [
                 'photo' => UploadedFile::fake()->create('harvest.png', 8, 'image/png'),
             ], ['Accept' => 'application/json'])
@@ -125,12 +125,12 @@ class HarvestNoteTest extends TestCase
             'borrowing_id' => Borrowing::factory()->for($member)->returned(),
         ]);
 
-        $this->actingAs($member)
+        $this->actingAs($member, 'sanctum')
             ->post("/api/harvest-notes/{$note->id}/photo", ['photo' => UploadedFile::fake()->create('one.png', 8, 'image/png')], ['Accept' => 'application/json'])
             ->assertCreated();
         $first = $note->fresh()->photo_path;
 
-        $this->actingAs($member)
+        $this->actingAs($member, 'sanctum')
             ->post("/api/harvest-notes/{$note->id}/photo", ['photo' => UploadedFile::fake()->create('two.png', 8, 'image/png')], ['Accept' => 'application/json'])
             ->assertCreated();
         $second = $note->fresh()->photo_path;
@@ -146,7 +146,7 @@ class HarvestNoteTest extends TestCase
             'borrowing_id' => Borrowing::factory()->for($member)->returned(),
         ]);
 
-        $this->actingAs($member)
+        $this->actingAs($member, 'sanctum')
             ->post("/api/harvest-notes/{$note->id}/photo", [
                 'photo' => UploadedFile::fake()->create('notes.txt', 8, 'text/plain'),
             ], ['Accept' => 'application/json'])
@@ -159,7 +159,7 @@ class HarvestNoteTest extends TestCase
         Storage::fake();
         $note = HarvestNote::factory()->create();
 
-        $this->actingAs(User::factory()->create())
+        $this->actingAs(User::factory()->create(), 'sanctum')
             ->post("/api/harvest-notes/{$note->id}/photo", [
                 'photo' => UploadedFile::fake()->create('notes.txt', 8, 'text/plain'),
             ], ['Accept' => 'application/json'])
@@ -177,7 +177,7 @@ class HarvestNoteTest extends TestCase
             'seeds_germinated' => 8,
         ]);
 
-        $this->actingAs($member)
+        $this->actingAs($member, 'sanctum')
             ->patchJson("/api/harvest-notes/{$note->id}", ['seeds_germinated' => 12])
             ->assertOk()
             ->assertJsonPath('data.seeds_germinated', 12)
@@ -193,7 +193,7 @@ class HarvestNoteTest extends TestCase
             'seeds_germinated' => 5,
         ]);
 
-        $this->actingAs($member)
+        $this->actingAs($member, 'sanctum')
             ->patchJson("/api/harvest-notes/{$note->id}", ['seeds_germinated' => 11])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['seeds_germinated']);
@@ -203,7 +203,7 @@ class HarvestNoteTest extends TestCase
     {
         $note = HarvestNote::factory()->create();
 
-        $this->actingAs(User::factory()->create())
+        $this->actingAs(User::factory()->create(), 'sanctum')
             ->patchJson("/api/harvest-notes/{$note->id}", ['body' => 'Mine now.'])
             ->assertForbidden();
     }
@@ -217,7 +217,7 @@ class HarvestNoteTest extends TestCase
         ]);
         Storage::assertExists($note->photo_path);
 
-        $this->actingAs($member)
+        $this->actingAs($member, 'sanctum')
             ->deleteJson("/api/harvest-notes/{$note->id}")
             ->assertNoContent();
 
@@ -230,14 +230,14 @@ class HarvestNoteTest extends TestCase
     {
         $note = HarvestNote::factory()->create();
 
-        $this->actingAs(User::factory()->create())
+        $this->actingAs(User::factory()->create(), 'sanctum')
             ->deleteJson("/api/harvest-notes/{$note->id}")
             ->assertForbidden();
 
         $this->assertModelExists($note);
     }
 
-    public function test_deleting_a_note_needs_a_session(): void
+    public function test_deleting_a_note_needs_a_token(): void
     {
         $note = HarvestNote::factory()->create();
 

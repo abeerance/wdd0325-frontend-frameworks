@@ -21,11 +21,12 @@ class RegisterRequest extends FormRequest
 
     /**
      * A signed-in member has nothing to register. Refusing here, before the rules run,
-     * means they never learn anything from the rules either.
+     * means they never learn anything from the rules either. The default guard is the
+     * session one, which never sees a token, so ask the token guard.
      */
     public function authorize(): Response
     {
-        return $this->user() === null
+        return $this->user('sanctum') === null
             ? Response::allow()
             : Response::deny('You are already signed in. Log out before registering someone new.');
     }

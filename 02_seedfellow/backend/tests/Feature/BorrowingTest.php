@@ -24,7 +24,7 @@ class BorrowingTest extends TestCase
         $variety = Variety::factory()->create();
         $packet = Packet::factory()->for($variety)->create();
 
-        $this->actingAs($member)
+        $this->actingAs($member, 'sanctum')
             ->postJson('/api/borrowings', ['variety_id' => $variety->id])
             ->assertCreated()
             ->assertJsonPath('data.packet_id', $packet->id)
@@ -40,7 +40,7 @@ class BorrowingTest extends TestCase
         $member = User::factory()->create();
         $variety = Variety::factory()->create();
 
-        $this->actingAs($member)
+        $this->actingAs($member, 'sanctum')
             ->postJson('/api/borrowings', ['variety_id' => $variety->id])
             ->assertStatus(409)
             ->assertJsonPath('message', 'That variety has no packets left.');
@@ -50,7 +50,7 @@ class BorrowingTest extends TestCase
 
     public function test_borrowing_needs_a_variety_that_exists(): void
     {
-        $this->actingAs(User::factory()->create())
+        $this->actingAs(User::factory()->create(), 'sanctum')
             ->postJson('/api/borrowings', ['variety_id' => 9999])
             ->assertStatus(422)
             ->assertJsonPath('errors.variety_id.0', 'The selected variety id is invalid.');
@@ -69,7 +69,7 @@ class BorrowingTest extends TestCase
         $member = User::factory()->create();
         $borrowing = Borrowing::factory()->for($member)->create();
 
-        $this->actingAs($member)
+        $this->actingAs($member, 'sanctum')
             ->patchJson("/api/borrowings/{$borrowing->id}")
             ->assertOk()
             ->assertJsonPath('data.returned_on', today()->toDateString());
@@ -82,7 +82,7 @@ class BorrowingTest extends TestCase
         $member = User::factory()->create();
         $borrowing = Borrowing::factory()->for($member)->returned()->create();
 
-        $this->actingAs($member)
+        $this->actingAs($member, 'sanctum')
             ->patchJson("/api/borrowings/{$borrowing->id}")
             ->assertStatus(409)
             ->assertJsonPath('message', 'That packet has already been returned.');
@@ -92,7 +92,7 @@ class BorrowingTest extends TestCase
     {
         $borrowing = Borrowing::factory()->create();
 
-        $this->actingAs(User::factory()->create())
+        $this->actingAs(User::factory()->create(), 'sanctum')
             ->patchJson("/api/borrowings/{$borrowing->id}")
             ->assertForbidden();
 
@@ -105,7 +105,7 @@ class BorrowingTest extends TestCase
         Borrowing::factory()->for($member)->create();
         Borrowing::factory()->create();
 
-        $this->actingAs($member)
+        $this->actingAs($member, 'sanctum')
             ->getJson('/api/borrowings')
             ->assertOk()
             ->assertJsonCount(1, 'data')
@@ -119,7 +119,7 @@ class BorrowingTest extends TestCase
         $returned = Borrowing::factory()->for($member)->returned()->create();
         $note = HarvestNote::factory()->for($returned)->create();
 
-        $response = $this->actingAs($member)
+        $response = $this->actingAs($member, 'sanctum')
             ->getJson('/api/borrowings')
             ->assertOk()
             ->assertJsonPath('data.0.id', $out->id)
@@ -141,13 +141,13 @@ class BorrowingTest extends TestCase
         $variety = Variety::factory()->create();
         Packet::factory()->for($variety)->create();
 
-        $borrowed = $this->actingAs($member)
+        $borrowed = $this->actingAs($member, 'sanctum')
             ->postJson('/api/borrowings', ['variety_id' => $variety->id])
             ->assertCreated();
         $this->assertArrayHasKey('harvest_note', $borrowed->json('data'));
         $this->assertNull($borrowed->json('data.harvest_note'));
 
-        $returned = $this->actingAs($member)
+        $returned = $this->actingAs($member, 'sanctum')
             ->patchJson('/api/borrowings/'.$borrowed->json('data.id'))
             ->assertOk();
         $this->assertArrayHasKey('harvest_note', $returned->json('data'));
@@ -158,12 +158,12 @@ class BorrowingTest extends TestCase
     {
         $member = User::factory()->create();
         HarvestNote::factory()->for(Borrowing::factory()->for($member)->returned())->create();
-        $one = $this->countQueries(fn () => $this->actingAs($member)->getJson('/api/borrowings')->assertJsonCount(1, 'data'));
+        $one = $this->countQueries(fn () => $this->actingAs($member, 'sanctum')->getJson('/api/borrowings')->assertJsonCount(1, 'data'));
 
         HarvestNote::factory()->count(4)->sequence(fn () => [
             'borrowing_id' => Borrowing::factory()->for($member)->returned(),
         ])->create();
-        $five = $this->countQueries(fn () => $this->actingAs($member)->getJson('/api/borrowings')->assertJsonCount(5, 'data'));
+        $five = $this->countQueries(fn () => $this->actingAs($member, 'sanctum')->getJson('/api/borrowings')->assertJsonCount(5, 'data'));
 
         $this->assertSame($one, $five);
     }

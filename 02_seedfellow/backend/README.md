@@ -10,7 +10,7 @@ One command starts the API with no Docker and no database server, from this `bac
 ./serve.sh
 ```
 
-It needs PHP 8.3 or newer with the SQLite extension (`pdo_sqlite`) and [Composer](https://getcomposer.org). The first run installs the PHP packages, creates `.env` if it is missing, creates the SQLite file `database/database.sqlite` (git-ignored) and seeds it. The API answers on `http://localhost:8080`. Press Ctrl+C to stop it, and run the script again to start from the same data. Delete `database/database.sqlite` to start over from the seed data. The script never edits `.env`: when it holds no app key, each start uses a new one, so signed-in sessions end when you restart it.
+It needs PHP 8.3 or newer with the SQLite extension (`pdo_sqlite`) and [Composer](https://getcomposer.org). The first run installs the PHP packages, creates `.env` if it is missing, creates the SQLite file `database/database.sqlite` (git-ignored) and seeds it. The API answers on `http://localhost:8080`. Press Ctrl+C to stop it, and run the script again to start from the same data. Delete `database/database.sqlite` to start over from the seed data. The script never edits `.env`: when it holds no app key, each start uses a new one. Tokens are looked up in the database, not signed with that key, so a restart signs nobody out.
 
 The script is bash. On Windows, run it in WSL or Git Bash, or type its steps in PowerShell:
 
@@ -58,15 +58,15 @@ Public:
 | GET | `/api/varieties/{id}` | One variety, its harvest notes and its germination rate. |
 | GET | `/api/varieties/{id}/photo` | The variety photograph. Add `?v={photo_version}` to make it cacheable for a year. |
 | GET | `/api/harvest-notes/{id}/photo` | A member's harvest photograph, the same way. |
-| POST | `/api/register` | Makes a new member and signs them in. `201` with the member, unwrapped. `403` while signed in. |
-| POST | `/api/login` | Signs in. Answers with the member, unwrapped. |
-| POST | `/api/logout` | Ends the session. `204`. |
+| POST | `/api/register` | Makes a new member and answers with a token. `201` with `token`, `expires_at` and `member`. `403` while holding a token. |
+| POST | `/api/login` | Answers with a token: `200` with `token`, `expires_at` and `member`. |
 
 Signed in (`auth:sanctum`):
 
 | Method | Path | What it does |
 |---|---|---|
-| GET | `/api/user` | The member holding this session. |
+| POST | `/api/logout` | Deletes the token it was sent with, so that token stops working. `204`. |
+| GET | `/api/user` | The member holding this token. |
 | GET | `/api/borrowings` | What this member has out, and what they gave back, each with its `harvest_note` or `null`. |
 | POST | `/api/borrowings` | Borrows a packet of `variety_id`. `409` when the shelf is empty or the variety is retired. |
 | PATCH | `/api/borrowings/{id}` | Returns the seed. Owner only. `409` if already returned. |
@@ -84,7 +84,7 @@ Librarians only, by policy, `403` otherwise:
 | POST | `/api/varieties/{id}/photo` | Uploads the variety photograph. `201` with the variety. Clears the old `photo_credit`, which described the old picture. |
 | POST | `/api/varieties/{id}/packets` | Accepts returned seed onto the shelf, `count` envelopes at a time. |
 
-Answers follow the shapes the platform's Laravel course teaches: collections under `data` with `links` and `meta`, `422` with `message` plus `errors`, `409` on a packet that is gone or a variety that is retired, `419` on a stale CSRF token, `401`, `403`, and `429` when a rate limit runs out.
+Answers follow the shapes the platform's Laravel course teaches: collections under `data` with `links` and `meta`, `422` with `message` plus `errors`, `409` on a packet that is gone or a variety that is retired, `401` on a missing, expired or deleted token, `403`, and `429` when a rate limit runs out.
 
 ## What an answer carries
 
@@ -131,42 +131,49 @@ Cache-Control: no-cache, public
 ETag: "f2911967724b6584"
 ```
 
-A photograph answer never starts a session or sets a cookie, because a shared cache would hand that cookie to the next person.
+No answer from this API sets a cookie, because a shared cache would hand that cookie to the next person.
 
 ## Rate limits
 
 | Routes | Allowance | Counted by |
 |---|---|---|
-| Every `/api` route except the two photo `GET`s and `POST /api/register` | 60 a minute | the signed-in member, or the address when nobody is signed in |
+| Every `/api` route except the two photo `GET`s, `POST /api/login` and `POST /api/register` | 60 a minute | the member holding the token, or the address when there is none |
 | `GET` on either `/photo` route | 600 a minute | the address |
+| `POST /api/login` | 5 a minute | the email address typed |
 | `POST /api/register` | 10 a minute | the address |
 
 Every `/api` answer carries `X-RateLimit-Limit` and `X-RateLimit-Remaining`, and a `429` also carries `Retry-After`. The counters live in the cache, so `php artisan cache:clear` resets them.
 
-Registering has its own allowance because every registration that succeeds writes a member. Refused attempts count too, so a script cannot try address after address to learn which ones belong to members. Only a request without a valid CSRF token is not counted: it is turned away before the limiter sees it.
+Registering has its own allowance because every registration that succeeds writes a member. Refused attempts count too, so a script cannot try address after address to learn which ones belong to members.
 
-Counting members by account rather than address is what lets a frontend call the API from its own server: every member arrives from that one server's address, and each still gets their own 60. Visitors who are not signed in do share the server's address. The API does not read `X-Forwarded-For`, because it trusts no proxy: nginx is the only thing in front of php-fpm, and the address it passes on is the real caller.
+Counting members by account rather than address is what lets a frontend call the API from its own server: every member arrives from that one server's address, and each still gets their own 60. Visitors without a token share the server's address, and so does every registration: the 10 a minute are one allowance for all of them. A login is counted by the email typed instead, because guessing a password is guessing one account's password however many machines do it. The API does not read `X-Forwarded-For`, because it trusts no proxy: nginx is the only thing in front of php-fpm, and the address it passes on is the real caller.
 
 ## Registering and signing in
 
-Sanctum's cookie session, the first-party path:
+Sanctum's personal access tokens. Nothing here starts a session, sets a cookie or asks for a CSRF token, because no browser calls this API: the frontend's server does, and keeps the token where the browser cannot read it.
 
-1. `GET /sanctum/csrf-cookie` sets `XSRF-TOKEN` and the session cookie.
-2. `POST /api/register` with `name`, `email`, `password` and `password_confirmation`, or `POST /api/login` with `email` and `password`, sending `X-XSRF-TOKEN` and the cookies.
-3. Both rotate the session, so read `XSRF-TOKEN` again afterwards.
+1. `POST /api/register` with `name`, `email`, `password` and `password_confirmation`, or `POST /api/login` with `email` and `password`.
+2. Both answer with a token. Keep it, and send `Authorization: Bearer {token}` on every request that needs a member.
+3. `POST /api/logout` deletes the token it was sent with. A token also stops working on its own after seven days (`expires_at`).
 
-Registering signs the new member in on the same session, exactly as a login would, and answers `201` with what `GET /api/user` answers from then on:
+Registering and logging in answer alike: `201` for a registration, `200` for a login.
 
 ```json
 {
-  "id": 3,
-  "name": "Ana Keller",
-  "email": "ana@example.org",
-  "is_librarian": false,
-  "created_at": "2026-09-24T16:59:02.000000Z",
-  "updated_at": "2026-09-24T16:59:02.000000Z"
+  "token": "1|Zk3f0wqQn8cJb5Vx2uTLr7sYhEoD1aMPg6iNyW4Kc9d8e2a1",
+  "expires_at": "2026-10-01T16:59:02.000000Z",
+  "member": {
+    "id": 3,
+    "name": "Ana Keller",
+    "email": "ana@example.org",
+    "is_librarian": false,
+    "created_at": "2026-09-24T16:59:02.000000Z",
+    "updated_at": "2026-09-24T16:59:02.000000Z"
+  }
 }
 ```
+
+The token is shown once. Only a hash of it is stored, so a caller who loses it logs in again.
 
 - `name`: required, at most 255 characters, with the spaces around it trimmed.
 - `email`: required, a valid address, at most 255 characters. It is stored in lower case, and login lowercases what it is sent too, so capitals never matter.
@@ -176,17 +183,15 @@ A new account is always a plain member. `is_librarian` is ignored if a request s
 
 | Answer | When | `message` |
 |---|---|---|
-| `201` | the member is made and signed in | none, the body is the member |
-| `403` | the caller is already signed in | `You are already signed in. Log out before registering someone new.` |
-| `419` | the CSRF token is missing or stale | `CSRF token mismatch.` |
+| `201` | the member is made and given a token | none, the body is the token and the member |
+| `403` | the caller already holds a token | `You are already signed in. Log out before registering someone new.` |
 | `422` | the email already belongs to a member, in any case | `That email already belongs to a member. Log in instead.` on `errors.email` |
 | `422` | a field is missing, too long, or the password is short or unconfirmed | the first error, with every one under `errors` |
 | `429` | the address has used its 10 for the minute | `Too Many Attempts.`, with `Retry-After` |
-| `400` | the request came from an origin not allowed a session | `A registration needs a session, and this request was not given one. Send it from an allowed origin.` |
 
 The taken-email answer does tell the caller that the address is a member's. A registration form cannot avoid that, because it has to say why it refused. The register allowance is what keeps anyone from asking about many addresses.
 
-`SANCTUM_STATEFUL_DOMAINS` and `FRONTEND_URL` in `.env` decide which origin is allowed to hold a session. The defaults cover the API on `localhost:8080` and a frontend on `localhost:3000`.
+`FRONTEND_URL` in `.env` is the one origin CORS lets a browser call from. The frontend's server is not a browser and needs no CORS.
 
 ## The seeded library
 
@@ -234,7 +239,7 @@ The development stack mounts this folder into its containers. The production sta
 
 Production settings are supplied separately in `.env.production`, which Git and the image build ignore. Configure the application key, matching database passwords and the deployment addresses before using that stack. The local development settings are not production credentials.
 
-`SANCTUM_STATEFUL_DOMAINS` and `FRONTEND_URL` in that file decide which frontend may sign in, as they do in `.env`.
+`FRONTEND_URL` in that file sets the allowed browser origin, as it does in `.env`.
 
 Build it, start it, and fill the database. `--seed` belongs to the first release only, because the seeder expects empty tables; every later release runs `migrate --force` alone:
 

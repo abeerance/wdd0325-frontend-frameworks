@@ -61,6 +61,6 @@ class RegistrationRaceTest extends TestCase
             ->assertJsonPath('errors.email.0', RegisterRequest::EMAIL_TAKEN);
 
         $this->assertDatabaseCount('users', 1);
-        $this->assertGuest();
+        $this->assertDatabaseCount('personal_access_tokens', 0);
     }
 }

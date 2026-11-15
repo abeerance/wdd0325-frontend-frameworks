@@ -24,7 +24,7 @@ php -r 'exit(extension_loaded("pdo_sqlite") ? 0 : 1);' || {
 [ -f vendor/autoload.php ] || composer install --no-interaction --prefer-dist
 [ -f .env ] || cp .env.example .env
 # A class checkout may track .env in git, and a script should not rewrite a tracked file. With no key in
-# it, this run takes a fresh one from the environment instead; signed-in sessions end when it restarts.
+# it, this run takes a fresh one from the environment instead.
 grep -q '^APP_KEY=.' .env || export APP_KEY="$(php artisan key:generate --show)"
 
 # These win over .env, which is written for Docker (DB_HOST=db and a PostgreSQL user).
@@ -35,6 +35,9 @@ if [ ! -f database/database.sqlite ]; then
   # An empty file left by a failed run would look like a finished database next time.
   php artisan migrate --seed --force || { rm -f database/database.sqlite; exit 1; }
 fi
+
+# A database made before a migration was added has to catch up: this does nothing when it already has.
+php artisan migrate --force
 
 echo "Seedfellow API on http://localhost:8080 (Ctrl+C to stop)"
 exec php -S 127.0.0.1:8080 -t public public/index.php

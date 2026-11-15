@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 return [
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*'],
 
     'allowed_methods' => ['GET', 'POST', 'PATCH', 'DELETE'],
 
@@ -20,6 +20,6 @@ return [
 
     'max_age' => 3600,
 
-    'supports_credentials' => true,
+    'supports_credentials' => false,
 
 ];

@@ -29,10 +29,10 @@ class RateLimitTest extends TestCase
     {
         [$marit, $tomas] = User::factory()->count(2)->create();
 
-        $this->spend(60, fn () => $this->actingAs($marit)->getJson('/api/user')->assertOk());
+        $this->spend(60, fn () => $this->actingAs($marit, 'sanctum')->getJson('/api/user')->assertOk());
 
-        $this->actingAs($marit)->getJson('/api/user')->assertTooManyRequests();
-        $this->actingAs($tomas)->getJson('/api/user')
+        $this->actingAs($marit, 'sanctum')->getJson('/api/user')->assertTooManyRequests();
+        $this->actingAs($tomas, 'sanctum')->getJson('/api/user')
             ->assertOk()
             ->assertHeader('X-RateLimit-Remaining', '59');
     }
@@ -54,7 +54,7 @@ class RateLimitTest extends TestCase
         $this->spend(60, fn () => $this->getJson('/api/varieties')->assertOk());
         $this->getJson('/api/varieties')->assertTooManyRequests();
 
-        $this->actingAs(User::factory()->create())
+        $this->actingAs(User::factory()->create(), 'sanctum')
             ->getJson('/api/varieties')
             ->assertOk()
             ->assertHeader('X-RateLimit-Remaining', '59');

@@ -89,8 +89,8 @@ class PhotoTest extends TestCase
     }
 
     /**
-     * The test case sends an Origin that Sanctum treats as the frontend, which is exactly
-     * the request that would otherwise start a session and set its cookies.
+     * Nothing in this API starts a session, so a response has no reason to set a cookie. A
+     * year-long public answer that carried somebody's would be shared with everyone.
      *
      * @param  class-string<Variety|HarvestNote>  $model
      */
@@ -122,18 +122,18 @@ class PhotoTest extends TestCase
         $librarian = User::factory()->librarian()->create();
         $variety = Variety::factory()->create();
 
-        $first = $this->actingAs($librarian)
+        $first = $this->actingAs($librarian, 'sanctum')
             ->post("/api/varieties/{$variety->id}/photo", ['photo' => UploadedFile::fake()->createWithContent('one.jpg', 'the first picture')], ['Accept' => 'application/json'])
             ->assertCreated()
             ->assertJsonPath('data.photo_version', substr(hash('sha256', 'the first picture'), 0, 16))
             ->json('data.photo_version');
 
-        $this->actingAs($librarian)
+        $this->actingAs($librarian, 'sanctum')
             ->post("/api/varieties/{$variety->id}/photo", ['photo' => UploadedFile::fake()->createWithContent('two.jpg', 'a second picture')], ['Accept' => 'application/json'])
             ->assertCreated()
             ->assertJsonPath('data.photo_version', substr(hash('sha256', 'a second picture'), 0, 16));
 
-        $this->actingAs($librarian)
+        $this->actingAs($librarian, 'sanctum')
             ->post("/api/varieties/{$variety->id}/photo", ['photo' => UploadedFile::fake()->createWithContent('three.jpg', 'the first picture')], ['Accept' => 'application/json'])
             ->assertCreated()
             ->assertJsonPath('data.photo_version', $first);
@@ -147,7 +147,7 @@ class PhotoTest extends TestCase
         ]);
         $old = $note->photo_version;
 
-        $new = $this->actingAs($member)
+        $new = $this->actingAs($member, 'sanctum')
             ->post("/api/harvest-notes/{$note->id}/photo", ['photo' => UploadedFile::fake()->createWithContent('new.png', 'a new harvest')], ['Accept' => 'application/json'])
             ->assertCreated()
             ->assertJsonPath('data.photo_version', substr(hash('sha256', 'a new harvest'), 0, 16))
@@ -178,7 +178,7 @@ class PhotoTest extends TestCase
         $this->assertSame($variety->photo_version, $catalogue[$variety->id]['photo_version']);
         $this->assertNull($catalogue[$bare->id]['photo_version']);
 
-        $this->actingAs($member)
+        $this->actingAs($member, 'sanctum')
             ->getJson('/api/borrowings')
             ->assertOk()
             ->assertJsonPath('data.0.variety.photo_version', $variety->photo_version)

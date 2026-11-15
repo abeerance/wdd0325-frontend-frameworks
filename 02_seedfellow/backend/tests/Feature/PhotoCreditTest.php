@@ -74,7 +74,7 @@ class PhotoCreditTest extends TestCase
         foreach (Variety::query()->orderBy('id')->get() as $variety) {
             $credit = $variety->photo_credit->jsonSerialize();
 
-            $this->actingAs($marit)
+            $this->actingAs($marit, 'sanctum')
                 ->patchJson("/api/varieties/{$variety->id}", ['photo_credit' => $credit])
                 ->assertOk()
                 ->assertJsonPath('data.photo_credit', $credit);
@@ -95,7 +95,7 @@ class PhotoCreditTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.0.photo_credit', self::CREDIT);
 
-        $this->actingAs($member)
+        $this->actingAs($member, 'sanctum')
             ->getJson('/api/borrowings')
             ->assertOk()
             ->assertJsonPath('data.0.variety.photo_credit', self::CREDIT);
@@ -106,18 +106,18 @@ class PhotoCreditTest extends TestCase
         $librarian = User::factory()->librarian()->create();
         $variety = Variety::factory()->withPhoto()->create();
 
-        $this->actingAs($librarian)
+        $this->actingAs($librarian, 'sanctum')
             ->patchJson("/api/varieties/{$variety->id}", ['photo_credit' => self::CREDIT])
             ->assertOk()
             ->assertJsonPath('data.photo_credit', self::CREDIT);
 
         // A multipart form or a query string sends the flag as "1"; the answer is a boolean.
-        $this->actingAs($librarian)
+        $this->actingAs($librarian, 'sanctum')
             ->patchJson("/api/varieties/{$variety->id}", ['photo_credit' => [...self::CREDIT, 'modified' => '1']])
             ->assertOk()
             ->assertJsonPath('data.photo_credit.modified', true);
 
-        $this->actingAs($librarian)
+        $this->actingAs($librarian, 'sanctum')
             ->patchJson("/api/varieties/{$variety->id}", ['photo_credit' => null])
             ->assertOk()
             ->assertJsonPath('data.photo_credit', null);
@@ -130,7 +130,7 @@ class PhotoCreditTest extends TestCase
         $librarian = User::factory()->librarian()->create();
         $variety = Variety::factory()->withPhoto()->create();
 
-        $this->actingAs($librarian)
+        $this->actingAs($librarian, 'sanctum')
             ->patchJson("/api/varieties/{$variety->id}", ['photo_credit' => [
                 'author' => str_repeat('a', 256),
                 'licence' => 'CC BY 4.0',
@@ -147,12 +147,12 @@ class PhotoCreditTest extends TestCase
         $missing = self::CREDIT;
         unset($missing['licence']);
 
-        $this->actingAs($librarian)
+        $this->actingAs($librarian, 'sanctum')
             ->patchJson("/api/varieties/{$variety->id}", ['photo_credit' => $missing])
             ->assertStatus(422)
             ->assertJsonPath('errors.photo_credit', ['The photo credit field must contain entries for: author, licence, source_url, modified.']);
 
-        $this->actingAs($librarian)
+        $this->actingAs($librarian, 'sanctum')
             ->patchJson("/api/varieties/{$variety->id}", ['photo_credit' => [...self::CREDIT, 'photo_path' => 'varieties/elsewhere.jpg']])
             ->assertStatus(422)
             ->assertJsonValidationErrors('photo_credit');
@@ -165,17 +165,17 @@ class PhotoCreditTest extends TestCase
         $librarian = User::factory()->librarian()->create();
         $variety = Variety::factory()->create();
 
-        $this->actingAs($librarian)
+        $this->actingAs($librarian, 'sanctum')
             ->patchJson("/api/varieties/{$variety->id}", ['photo_credit' => self::CREDIT])
             ->assertStatus(422)
             ->assertJsonPath('errors.photo_credit', ['That variety has no photo to credit.']);
 
-        $this->actingAs($librarian)
+        $this->actingAs($librarian, 'sanctum')
             ->patchJson("/api/varieties/{$variety->id}", ['photo_credit' => null])
             ->assertOk()
             ->assertJsonPath('data.photo_credit', null);
 
-        $this->actingAs($librarian)
+        $this->actingAs($librarian, 'sanctum')
             ->postJson('/api/varieties', [
                 'name' => 'Zollinger Buschbohne',
                 'species' => 'Phaseolus vulgaris',
@@ -204,7 +204,7 @@ class PhotoCreditTest extends TestCase
     {
         $variety = Variety::factory()->withPhoto()->create(['photo_credit' => self::CREDIT]);
 
-        $this->actingAs(User::factory()->librarian()->create())
+        $this->actingAs(User::factory()->librarian()->create(), 'sanctum')
             ->post("/api/varieties/{$variety->id}/photo", ['photo' => UploadedFile::fake()->createWithContent('new.jpg', 'another photographer')], ['Accept' => 'application/json'])
             ->assertCreated()
             ->assertJsonPath('data.photo_credit', null);
@@ -216,7 +216,7 @@ class PhotoCreditTest extends TestCase
     {
         $variety = Variety::factory()->withPhoto()->create();
 
-        $this->actingAs(User::factory()->create())
+        $this->actingAs(User::factory()->create(), 'sanctum')
             ->patchJson("/api/varieties/{$variety->id}", ['photo_credit' => self::CREDIT])
             ->assertForbidden();
 

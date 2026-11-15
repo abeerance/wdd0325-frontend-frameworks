@@ -6,8 +6,8 @@
 # Bruno covers the happy path with assertions; this exists so the whole surface is
 # enumerated from the routing table rather than sampled.
 #
-# Run it against a freshly seeded dev stack:
-#   docker compose exec php php artisan migrate:fresh --seed
+# Run it against a freshly seeded API: delete database/database.sqlite, start ./serve.sh in
+# one terminal, and run this in another one that has PHP (it reads the ids out of the JSON).
 #   scripts/sweep-every-route.sh
 set -u
 
@@ -16,20 +16,18 @@ FIXTURE=${FIXTURE:-$HERE/../bruno/seed-photo.png}
 TEXTFIXTURE=${TEXTFIXTURE:-$HERE/not-a-photo.txt}
 
 BASE=http://localhost:8080
-ORIGIN=http://localhost:3000
-JAR=$(mktemp)
+TOKEN=
 PASS=0
 FAIL=0
 
-req() { # [WITHOUT_XSRF=1] req NAME EXPECTED METHOD PATH [curl args...]
+req() { # [TOKEN=...] req NAME EXPECTED METHOD PATH [curl args...]
   local name=$1 expected=$2 method=$3 path=$4; shift 4
   local out code
-  # Every request carries the CSRF token unless the caller asks for one without it.
-  if [ "${WITHOUT_XSRF:-}" != 1 ]; then set -- -H "X-XSRF-TOKEN: $(xsrf)" "$@"; fi
+  # Every request carries the token of whoever is signed in, once there is one.
+  if [ -n "$TOKEN" ]; then set -- -H "Authorization: Bearer $TOKEN" "$@"; fi
   : > /tmp/body.$$ # a 304 or 204 writes no body, so empty the file rather than show the last one
   out=$(curl -s -o /tmp/body.$$ -w '%{http_code}' -X "$method" "$BASE$path" \
-    -H "Accept: application/json" -H "Origin: $ORIGIN" \
-    -b "$JAR" -c "$JAR" \
+    -H "Accept: application/json" \
     "$@")
   code=$out
   if [ "$code" = "$expected" ]; then PASS=$((PASS+1)); printf 'OK   %-3s %-46s' "$code" "$name";
@@ -38,31 +36,25 @@ req() { # [WITHOUT_XSRF=1] req NAME EXPECTED METHOD PATH [curl args...]
   BODY=$(cat /tmp/body.$$)
 }
 
-# The cookie jar holds XSRF-TOKEN URL-encoded; the header wants it decoded. PHP in the
-# container does the decoding and reads the JSON ids below, so the host needs nothing but curl.
-container_php() {
-  docker compose -f "$HERE/../compose.yaml" exec -T php php "$@"
-}
-
-xsrf() {
-  container_php -r 'echo urldecode($argv[1]);' "$(awk '/XSRF-TOKEN/ {print $7}' "$JAR" | tail -1)"
-}
-
 # The id of the row the last request created.
 created_id() {
-  echo "$BODY" | container_php -r 'echo json_decode(stream_get_contents(STDIN))->data->id;'
+  echo "$BODY" | php -r 'echo json_decode(stream_get_contents(STDIN))->data->id;'
 }
 
 # The photo_version of the variety or note the last request answered with.
 photo_version() {
-  echo "$BODY" | container_php -r 'echo json_decode(stream_get_contents(STDIN))->data->photo_version;'
+  echo "$BODY" | php -r 'echo json_decode(stream_get_contents(STDIN))->data->photo_version;'
+}
+
+# The token a login or a registration just answered with.
+answered_token() {
+  echo "$BODY" | php -r 'echo json_decode(stream_get_contents(STDIN))->token;'
 }
 
 CREDIT='{"author":"Ermell","licence":"CC BY-SA 4.0","source_url":"https://commons.wikimedia.org/wiki/File:Dill_Bluete_7080848-PSD-2.jpg","modified":false}'
 
 echo "== public =="
 req "health /up"                200 GET /up
-req "csrf cookie"               204 GET /sanctum/csrf-cookie
 req "varieties index"           200 GET "/api/varieties"
 req "varieties per_page=2"      200 GET "/api/varieties?per_page=2"
 req "varieties per_page=999"    422 GET "/api/varieties?per_page=999"
@@ -88,19 +80,22 @@ ANA='"name":"Ana Keller","email":"ana@example.org"'
 PASSWORDS='"password":"a row of runner beans","password_confirmation":"a row of runner beans"'
 
 echo "== registration =="
-WITHOUT_XSRF=1 req "register without csrf token" 419 POST /api/register -H 'Content-Type: application/json' -d "{$ANA,$PASSWORDS}"
 req "register missing fields"   422 POST /api/register -H 'Content-Type: application/json' -d '{}'
 req "register email taken"      422 POST /api/register -H 'Content-Type: application/json' -d "{\"name\":\"Ana Keller\",\"email\":\"Tomas@Example.org\",$PASSWORDS}"
 req "register short password"   422 POST /api/register -H 'Content-Type: application/json' -d "{$ANA,\"password\":\"beans\",\"password_confirmation\":\"beans\"}"
 req "register unconfirmed"      422 POST /api/register -H 'Content-Type: application/json' -d "{$ANA,\"password\":\"a row of runner beans\",\"password_confirmation\":\"a row of broad beans\"}"
 req "register ana"              201 POST /api/register -H 'Content-Type: application/json' -d "{$ANA,$PASSWORDS,\"is_librarian\":true}"
+TOKEN=$(answered_token)
 req "user after registering"    200 GET /api/user
 req "register while signed in"  403 POST /api/register -H 'Content-Type: application/json' -d "{\"name\":\"Someone Else\",\"email\":\"someone-else@example.org\",$PASSWORDS}"
 req "logout after registering"  204 POST /api/logout
+req "user after logging out"    401 GET /api/user
+TOKEN=
 
 echo "== auth: member =="
 req "login wrong password"      422 POST /api/login -H 'Content-Type: application/json' -d '{"email":"tomas@example.org","password":"nope"}'
 req "login tomas"               200 POST /api/login -H 'Content-Type: application/json' -d '{"email":"tomas@example.org","password":"correct horse battery staple"}'
+TOKEN=$(answered_token)
 req "user"                      200 GET /api/user
 req "borrowings index"          200 GET /api/borrowings
 req "borrow Verte de Cambrai"   201 POST /api/borrowings -H 'Content-Type: application/json' -d '{"variety_id":9}'
@@ -128,12 +123,13 @@ req "delete the note"           204 DELETE "/api/harvest-notes/$NEW_NOTE"
 req "deleted note's photo"      404 GET "/api/harvest-notes/$NEW_NOTE/photo"
 req "librarian route as member" 403 POST /api/varieties -H 'Content-Type: application/json' -d '{"name":"Test","species":"Test","kind":"herb","story":"x","sowing_months":[4]}'
 req "variety photo as member"   403 POST "/api/varieties/1/photo" -F "photo=@$TEXTFIXTURE"
-req "stale csrf token"          419 POST /api/borrowings -H 'Content-Type: application/json' -H 'X-XSRF-TOKEN: stale' -d '{"variety_id":1}'
+TOKEN='1|stale' req "stale token"   401 POST /api/borrowings -H 'Content-Type: application/json' -d '{"variety_id":1}'
 req "logout"                    204 POST /api/logout
+TOKEN=
 
 echo "== auth: librarian =="
-req "csrf cookie"               204 GET /sanctum/csrf-cookie
 req "login marit"               200 POST /api/login -H 'Content-Type: application/json' -d '{"email":"marit@example.org","password":"seeds-in-the-post"}'
+TOKEN=$(answered_token)
 req "create variety"            201 POST /api/varieties -H 'Content-Type: application/json' -d '{"name":"Zollinger Buschbohne","species":"Phaseolus vulgaris","kind":"vegetable","story":"A bush bean from the Valais.","sowing_months":[5,6]}'
 NEW_VARIETY=$(created_id)
 req "create variety with credit" 422 POST /api/varieties -H 'Content-Type: application/json' -d "{\"name\":\"Trockenbohne\",\"species\":\"Phaseolus vulgaris\",\"kind\":\"vegetable\",\"story\":\"x\",\"sowing_months\":[5],\"photo_credit\":$CREDIT}"

@@ -12,7 +12,6 @@ use App\Http\Controllers\VarietyController;
 use App\Http\Controllers\VarietyPhotoController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 // Registering writes a row, so it draws on an allowance of its own, counted by address:
 // until the request succeeds there is no member to count it by.
@@ -21,17 +20,20 @@ Route::post('register', [RegistrationController::class, 'store'])
     ->middleware('throttle:register')
     ->name('register');
 
-Route::post('login', [SessionController::class, 'store'])->name('login');
-Route::post('logout', [SessionController::class, 'destroy'])->name('logout');
+// A password can be guessed one try at a time, so a login draws on an allowance counted by
+// the address it is for, not by who sent it: every request arrives from the frontend's server.
+Route::post('login', [SessionController::class, 'store'])
+    ->withoutMiddleware('throttle:api')
+    ->middleware('throttle:login')
+    ->name('login');
 
 // The catalogue is public: anyone can read what the library holds.
 Route::get('varieties', [VarietyController::class, 'index'])->name('varieties.index');
 Route::get('varieties/{variety}', [VarietyController::class, 'show'])->name('varieties.show')->whereNumber('variety');
 
 // Photographs are fetched a dozen to a page, often by an image optimiser rather than a
-// browser, so they draw on their own allowance instead of the `api` one. They also skip
-// the session: a year-long public answer must never carry somebody's cookie.
-Route::withoutMiddleware([EnsureFrontendRequestsAreStateful::class, 'throttle:api'])
+// browser, so they draw on their own allowance instead of the `api` one.
+Route::withoutMiddleware('throttle:api')
     ->middleware('throttle:photos')
     ->group(function (): void {
         Route::get('varieties/{variety}/photo', [VarietyPhotoController::class, 'show'])->name('varieties.photo.show')->whereNumber('variety');
@@ -39,6 +41,7 @@ Route::withoutMiddleware([EnsureFrontendRequestsAreStateful::class, 'throttle:ap
     });
 
 Route::middleware('auth:sanctum')->group(function (): void {
+    Route::post('logout', [SessionController::class, 'destroy'])->name('logout');
     Route::get('user', fn (Request $request) => $request->user())->name('user');
 
     Route::get('borrowings', [BorrowingController::class, 'index'])->name('borrowings.index');

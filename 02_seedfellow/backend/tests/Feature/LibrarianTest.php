@@ -19,7 +19,7 @@ class LibrarianTest extends TestCase
 
     public function test_an_ordinary_member_cannot_add_a_variety(): void
     {
-        $this->actingAs(User::factory()->create())
+        $this->actingAs(User::factory()->create(), 'sanctum')
             ->postJson('/api/varieties', [
                 'name' => 'Berner Rose',
                 'species' => 'Solanum lycopersicum',
@@ -34,7 +34,7 @@ class LibrarianTest extends TestCase
 
     public function test_a_librarian_adds_a_variety(): void
     {
-        $this->actingAs(User::factory()->librarian()->create())
+        $this->actingAs(User::factory()->librarian()->create(), 'sanctum')
             ->postJson('/api/varieties', [
                 'name' => 'Berner Rose',
                 'species' => 'Solanum lycopersicum',
@@ -52,7 +52,7 @@ class LibrarianTest extends TestCase
     {
         $variety = Variety::factory()->create();
 
-        $this->actingAs(User::factory()->librarian()->create())
+        $this->actingAs(User::factory()->librarian()->create(), 'sanctum')
             ->postJson("/api/varieties/{$variety->id}/packets", ['count' => 3])
             ->assertCreated()
             ->assertJsonPath('data.packets_available', 3);
@@ -67,7 +67,7 @@ class LibrarianTest extends TestCase
         $onShelf = Packet::factory()->for($variety)->create();
         $withAMember = Packet::factory()->for($variety)->borrowed()->create();
 
-        $this->actingAs($librarian)
+        $this->actingAs($librarian, 'sanctum')
             ->patchJson("/api/varieties/{$variety->id}", ['retired' => true])
             ->assertOk()
             ->assertJsonPath('data.retired', true)
@@ -76,7 +76,7 @@ class LibrarianTest extends TestCase
         $this->assertSame(PacketStatus::Retired, $onShelf->fresh()->status);
         $this->assertSame(PacketStatus::Borrowed, $withAMember->fresh()->status, 'a packet already out is not touched');
 
-        $this->actingAs($librarian)
+        $this->actingAs($librarian, 'sanctum')
             ->patchJson("/api/varieties/{$variety->id}", ['retired' => false])
             ->assertOk()
             ->assertJsonPath('data.retired', false)
@@ -87,12 +87,12 @@ class LibrarianTest extends TestCase
     {
         $variety = Variety::factory()->retired()->create();
 
-        $this->actingAs(User::factory()->create())
+        $this->actingAs(User::factory()->create(), 'sanctum')
             ->postJson('/api/borrowings', ['variety_id' => $variety->id])
             ->assertStatus(409)
             ->assertJsonPath('message', 'That variety has been retired.');
 
-        $this->actingAs(User::factory()->librarian()->create())
+        $this->actingAs(User::factory()->librarian()->create(), 'sanctum')
             ->postJson("/api/varieties/{$variety->id}/packets", ['count' => 2])
             ->assertStatus(409)
             ->assertJsonPath('message', 'That variety has been retired.');
@@ -104,7 +104,7 @@ class LibrarianTest extends TestCase
         $variety = Variety::factory()->create();
         Packet::factory()->for($variety)->create();
 
-        $this->actingAs(User::factory()->librarian()->create())
+        $this->actingAs(User::factory()->librarian()->create(), 'sanctum')
             ->post("/api/varieties/{$variety->id}/photo", [
                 'photo' => UploadedFile::fake()->create('tomato.jpg', 8, 'image/jpeg'),
             ], ['Accept' => 'application/json'])
@@ -123,7 +123,7 @@ class LibrarianTest extends TestCase
         Storage::fake();
         $variety = Variety::factory()->create();
 
-        $this->actingAs(User::factory()->create())
+        $this->actingAs(User::factory()->create(), 'sanctum')
             ->post("/api/varieties/{$variety->id}/photo", [
                 'photo' => UploadedFile::fake()->create('notes.txt', 8, 'text/plain'),
             ], ['Accept' => 'application/json'])

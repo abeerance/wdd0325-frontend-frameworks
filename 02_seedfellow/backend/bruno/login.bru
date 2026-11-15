@@ -11,8 +11,6 @@ post {
 
 headers {
   Accept: application/json
-  Origin: {{origin}}
-  X-XSRF-TOKEN: {{xsrfToken}}
 }
 
 body:json {
@@ -22,10 +20,15 @@ body:json {
   }
 }
 
+script:post-response {
+  bru.setVar("token", res.body.token);
+}
+
 assert {
   res.status: eq 200
-  res.body.id: eq 2
-  res.body.name: eq Tomas Rieder
-  res.body.is_librarian: eq false
-  res.body.created_at: eq 2026-01-19T09:00:00.000000Z
+  res.body.token: isString
+  res.body.member.id: eq 2
+  res.body.member.name: eq Tomas Rieder
+  res.body.member.is_librarian: eq false
+  res.body.member.created_at: eq 2026-01-19T09:00:00.000000Z
 }

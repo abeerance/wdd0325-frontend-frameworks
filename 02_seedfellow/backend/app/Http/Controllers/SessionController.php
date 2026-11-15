@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Http\Requests\LoginRequest;
-use Illuminate\Http\JsonResponse;
+use App\Http\Responses\TokenResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -13,26 +13,26 @@ use Illuminate\Validation\ValidationException;
 
 class SessionController extends Controller
 {
-    public function store(LoginRequest $request): JsonResponse
+    public function store(LoginRequest $request): TokenResponse
     {
-        abort_unless($request->hasSession(), 400, 'A login needs a session, and this request was not given one. Send it from an allowed origin.');
+        // `validate` checks the details and signs nobody in: there is no session to sign
+        // them in to. It keeps the same timing for an unknown address as for a wrong
+        // password, so the answer does not say which addresses have an account.
+        $guard = Auth::guard('web');
 
-        if (! Auth::attempt($request->only('email', 'password'))) {
+        if (! $guard->validate($request->only('email', 'password'))) {
             throw ValidationException::withMessages(['email' => 'Those details did not match.']);
         }
 
-        $request->session()->regenerate();
-
-        return response()->json($request->user());
+        return new TokenResponse($guard->getLastAttempted());
     }
 
+    /**
+     * Deleting the row is the logout: the token stops working on the next request.
+     */
     public function destroy(Request $request): Response
     {
-        abort_unless($request->hasSession(), 400, 'A logout needs a session, and this request was not given one. Send it from an allowed origin.');
-
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $request->user()->currentAccessToken()->delete();
 
         return response()->noContent();
     }
