@@ -17,6 +17,7 @@ export function PacketLine({ variety }: PacketLineProps) {
 
   return (
     <Text className="font-medium">
+      {/* A retired variety is no longer lent out, so a packet count would mislead. */}
       {variety.packets_available}
       {variety.packets_available === 1 ? "packet" : "packets"} on the shelf
     </Text>

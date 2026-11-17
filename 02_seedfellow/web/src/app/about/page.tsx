@@ -2,6 +2,7 @@ import { Text } from "@/components/ui/text";
 
 // A page with no state and no data: a plain server component, shipped as HTML. One <h1> per page,
 // so a screen reader's outline starts with the page's own title.
+// The page for the route /about.
 export default function AboutPage() {
   return (
     <div className="flex flex-col gap-8">
@@ -14,6 +15,7 @@ export default function AboutPage() {
         </h1>
       </header>
 
+      {/* The four steps of the library, written as plain paragraphs. max-w-prose keeps lines readable. */}
       <div className="flex max-w-prose flex-col gap-4">
         <Text>
           Borrow a packet. Pick a variety from the catalogue and take one packet

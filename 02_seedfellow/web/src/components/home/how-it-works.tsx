@@ -1,5 +1,6 @@
-import { Text } from "./ui/text";
+import { Text } from "@/components/ui/text";
 
+// The shape of one step. The id is a stable key for React.
 interface Step {
   id: string;
   title: string;
@@ -26,6 +27,7 @@ const STEPS: Step[] = [
   },
 ];
 
+// The three-step summary on the home page, shown under the hero. A Server Component: no state.
 export function HowItWorks() {
   return (
     <section className="flex flex-col gap-5">

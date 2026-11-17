@@ -9,7 +9,7 @@
   and a default parameter.
 - Paragraph text through `Text` (`ui/text.tsx`), panels through `Card`. Never a `<div>` for
   text. Headings stay real `<h1>`-`<h6>`.
-- Merge classes with `cn` (`@/lib/cn`), never string joins: own classes first, `{...rest}`
+- Merge classes with `cn` (`@/lib/utils/cn`), never string joins: own classes first, `{...rest}`
   next, caller's `className` last.
 - Derive from state or props during render. Never store it in state or sync it with an effect.
 - Interactive widgets (switch, dialog, field) come from Base UI, imported per component from

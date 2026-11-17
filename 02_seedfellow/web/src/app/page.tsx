@@ -1,7 +1,7 @@
 import { Suspense } from "react";
-import { Catalogue } from "@/components/catalogue";
-import { Hero } from "@/components/hero";
+import { Hero } from "@/components/home/hero";
 import { Text } from "@/components/ui/text";
+import { Catalogue } from "@/components/varieties/catalogue";
 
 // The home page is a server component: it renders on the server, which is what lets Catalogue wait
 // for its data. Hero is plain markup. The page only decides the order.

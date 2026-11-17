@@ -1,8 +1,8 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { CatalogueResults } from "@/components/catalogue-results";
-import { VarietyFilter } from "@/components/variety-filter";
+import { CatalogueResults } from "@/components/varieties/catalogue-results";
+import { VarietyFilter } from "@/components/varieties/variety-filter";
 import { useVarietyFilter } from "@/hooks/use-variety-filter";
 import type { VarietyBrief } from "@/lib/types";
 

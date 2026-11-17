@@ -1,5 +1,5 @@
 import type { ComponentPropsWithoutRef } from "react";
-import { cn } from "../../lib/cn";
+import { cn } from "@/lib/utils/cn";
 
 // This is the simplified solution, which is valid but a bit limitiert
 // interface TextProps {

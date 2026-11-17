@@ -2,8 +2,8 @@
 
 import { Switch } from "@base-ui/react/switch";
 import { Card } from "@/components/ui/card";
-import { cn } from "@/lib/cn";
 import type { Kind } from "@/lib/types";
+import { cn } from "@/lib/utils/cn";
 
 // The kinds the select offers, in the order they appear. A constant outside the component,
 // because it never changes and does not need to be rebuilt every render.

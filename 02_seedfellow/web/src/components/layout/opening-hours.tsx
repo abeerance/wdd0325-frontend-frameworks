@@ -1,5 +1,6 @@
-import { Text } from "./ui/text";
+import { Text } from "@/components/ui/text";
 
+// One row of the opening hours.
 interface Opening {
   id: string;
   day: string;
@@ -14,6 +15,8 @@ const OPENINGS: Opening[] = [
   { id: "saturday", day: "Saturday", hours: "10:00 to 13:00" },
 ];
 
+// The opening hours list. Used in the footer and on the /visit page. The hours are hard coded
+// because there is no API for them.
 export function OpeningHours() {
   return (
     <>

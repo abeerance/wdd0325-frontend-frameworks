@@ -1,10 +1,12 @@
 // The library's name with its mark: a seed that has just put up two leaves. The drawing
 // is aria-hidden because it repeats the word beside it, so the word alone is what a
 // screen reader reads. It is a <p>, not a heading: each page brings its own <h1>.
+// The header and the auth pages use this wherever the site's name appears.
 export function Logo() {
   return (
     <p className="flex items-center gap-2.5 font-semibold text-ink text-lg">
       <svg aria-hidden="true" viewBox="0 0 32 32" className="size-8 shrink-0">
+        {/* A round badge, a stem, two leaves and the seed at the base. */}
         <circle cx="16" cy="16" r="16" className="fill-moss" />
         <path
           d="M16 24V13"

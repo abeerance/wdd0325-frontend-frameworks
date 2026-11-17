@@ -5,16 +5,22 @@ import { Dialog } from "@base-ui/react/dialog";
 import { Field } from "@base-ui/react/field";
 import type { SubmitEvent } from "react";
 import { useState } from "react";
-import { cn } from "@/lib/cn";
 import type { VarietyBrief } from "@/lib/types";
+import { cn } from "@/lib/utils/cn";
 
+// VarietyBrief is a small slice of a variety: id, name, kind, packets_available and retired.
+// This file runs in the browser, so it only receives the fields the form needs.
 interface BorrowDialogProps {
   variety: VarietyBrief;
 }
 
+// Shared focus ring so keyboard users can see which control is selected.
 const FOCUS =
   "focus-visible:outline-2 focus-visible:outline-moss focus-visible:outline-offset-2";
 
+// The "Borrow a packet" button and the pop-up form it opens. It takes a brief variety and is
+// used on the catalogue card and on the variety's own page. A dialog is a window that sits
+// on top of the page and holds focus until it is closed.
 export function BorrowDialog({ variety }: BorrowDialogProps) {
   // Base UI owns whether the dialog is open. This is ours: the form has to close it after
   // a successful submit, so we need to be able to say so.
@@ -47,6 +53,8 @@ export function BorrowDialog({ variety }: BorrowDialogProps) {
         Borrow a packet
       </Dialog.Trigger>
 
+      {/* A portal draws the dialog at the end of <body>, so no parent's overflow or stacking
+          can clip it or hide it behind other content. */}
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 bg-ink/40 backdrop-blur-[2px] motion-safe:transition-opacity data-closed:opacity-0 data-starting-style:opacity-0" />
 
@@ -60,6 +68,8 @@ export function BorrowDialog({ variety }: BorrowDialogProps) {
             shelf. Bring seed back at the end of the season.
           </Dialog.Description>
 
+          {/* Field parts connect the label, the hint and the error message to the input, so
+              screen readers read them together. */}
           <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-4">
             <Field.Root
               validationMode="onBlur"

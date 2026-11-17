@@ -1,7 +1,8 @@
-import { OpeningHours } from "@/components/opening-hours";
+import { OpeningHours } from "@/components/layout/opening-hours";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
 
+// One step of the first visit. The id is a stable key for React.
 interface Step {
   id: string;
   title: string;
@@ -43,6 +44,7 @@ export default function VisitPage() {
           first time.
         </Text>
       </header>
+      {/* Three info cards: where, when and what to bring. */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card className="flex flex-col gap-3">
           <h2 className="font-semibold text-ink text-lg">
@@ -55,6 +57,7 @@ export default function VisitPage() {
         </Card>
         <Card className="flex flex-col gap-3">
           <h2 className="font-semibold text-ink text-lg">When it is open</h2>
+          {/* Shared with the footer, so the hours are written in one place only. */}
           <OpeningHours />
         </Card>
         <Card className="flex flex-col gap-3 sm:col-span-2 lg:col-span-1">
@@ -78,6 +81,7 @@ export default function VisitPage() {
           <Text variant="muted">Nothing else. Seed is lent, never sold.</Text>
         </Card>
       </div>
+      {/* The same three steps as on the home page, here as a guide for a first visit. */}
       <section className="flex flex-col gap-5">
         <h2 className="font-semibold text-2xl text-ink">Your first visit</h2>
         <ol className="grid gap-6 border-line border-y py-6 sm:grid-cols-3 sm:gap-8">

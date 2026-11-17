@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { Logo } from "@/components/logo";
+import { OpeningHours } from "@/components/layout/opening-hours";
+import { Logo } from "@/components/ui/logo";
 import { Text } from "@/components/ui/text";
-import { OpeningHours } from "./opening-hours";
 
 // The bottom of every page. It sits in the root layout after <main>, directly in the
 // <body>, which is what makes it the page's contentinfo landmark.
@@ -9,6 +9,7 @@ export function SiteFooter() {
   return (
     <footer className="border-line border-t bg-card">
       <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-3">
+        {/* Column 1: who we are, and a link to join. */}
         <section className="flex flex-col gap-4 sm:col-span-2 lg:col-span-1">
           <Logo />
           <Text className="max-w-prose text-bark">
@@ -26,6 +27,7 @@ export function SiteFooter() {
           </Link>
         </section>
 
+        {/* Column 2: where the library is. */}
         <section className="flex flex-col gap-3">
           <h2 className="font-semibold text-ink">Where to find us</h2>
           <Text className="text-bark">
@@ -40,12 +42,14 @@ export function SiteFooter() {
           </Link>
         </section>
 
+        {/* Column 3: when the door is open. */}
         <section className="flex flex-col gap-3">
           <h2 className="font-semibold text-ink">When we are open</h2>
           <OpeningHours />
         </section>
       </div>
 
+      {/* Bottom strip with the photo credit note. */}
       <div className="border-line border-t">
         <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6">
           <Text className="text-bark text-sm">

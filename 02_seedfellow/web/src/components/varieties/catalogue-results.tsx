@@ -1,12 +1,13 @@
-import type { CatalogueEntry } from "./catalogue-filter";
-import { Card } from "./ui/card";
-import { Text } from "./ui/text";
+import { Card } from "@/components/ui/card";
+import { Text } from "@/components/ui/text";
+import type { CatalogueEntry } from "@/components/varieties/catalogue-filter";
 
 interface CatalogueResultsProps {
   entries: CatalogueEntry[];
   total: number;
 }
 
+// The count line and the grid of cards. Used by the catalogue's filter component.
 // Only draws what it is given: entries is the filtered shelf, total the full count.
 // It never filters itself, so the rule lives in one place, useVarietyFilter.
 export function CatalogueResults({ entries, total }: CatalogueResultsProps) {

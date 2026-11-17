@@ -1,17 +1,19 @@
 // src/app/varieties/[id]/page.tsx
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { BorrowDialog } from "@/components/borrow-dialog";
-import { HarvestNotes } from "@/components/harvest-notes";
-import { MoreLikeThis } from "@/components/more-like-this";
-import { PacketLine } from "@/components/packet-line";
-import { PhotoCredit } from "@/components/photo-credit";
+import { BorrowDialog } from "@/components/borrowings/borrow-dialog";
 import { Text } from "@/components/ui/text";
-import { VarietyNav } from "@/components/variety-nav";
-import { VarietyPhoto } from "@/components/variety-photo";
-import { formatMonths } from "@/lib/months";
-import { brief, getVariety } from "@/lib/varieties";
+import { HarvestNotes } from "@/components/varieties/harvest-notes";
+import { MoreLikeThis } from "@/components/varieties/more-like-this";
+import { PacketLine } from "@/components/varieties/packet-line";
+import { PhotoCredit } from "@/components/varieties/photo-credit";
+import { VarietyNav } from "@/components/varieties/variety-nav";
+import { VarietyPhoto } from "@/components/varieties/variety-photo";
+import { brief, getVariety } from "@/lib/api/varieties";
+import { formatMonths } from "@/lib/utils/months";
 
+// In this version of Next.js `params` is a Promise, so reading the `id` from the address
+// has to be awaited.
 type VarietyParams = { params: Promise<{ id: string }> };
 
 // The page itself does not wait. Reading `params` is a wait, and the variety comes from the
@@ -26,6 +28,8 @@ export default function VarietyPage({ params }: VarietyParams) {
   );
 }
 
+// A Server Component: it runs on the server, so it can `await` the API directly. It shows
+// one variety in full, then its harvest notes, similar varieties and previous/next links.
 async function VarietyDetails({ params }: VarietyParams) {
   const { id } = await params;
   const variety = await getVariety(id);
@@ -72,6 +76,8 @@ async function VarietyDetails({ params }: VarietyParams) {
           </div>
         </div>
       </article>
+      {/* These sections fetch their own data from the API, so each one is a Server Component
+          that waits by itself. */}
       <HarvestNotes id={id} />
       <MoreLikeThis variety={variety} />
       <VarietyNav variety={variety} />

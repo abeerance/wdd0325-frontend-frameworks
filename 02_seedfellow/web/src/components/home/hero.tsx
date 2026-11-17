@@ -1,5 +1,5 @@
-import { HowItWorks } from "./how-it-works";
-import { Text } from "./ui/text";
+import { HowItWorks } from "@/components/home/how-it-works";
+import { Text } from "@/components/ui/text";
 
 // The opening block of the home page: the pitch on the left and a placeholder picture on the right
 // from the lg breakpoint up. Plain markup with no state, so it renders on the server.
@@ -105,6 +105,7 @@ export function Hero() {
           </svg>
         </div>
       </header>
+      {/* The steps sit under the hero so a new visitor learns how borrowing works. */}
       <HowItWorks />
     </div>
   );

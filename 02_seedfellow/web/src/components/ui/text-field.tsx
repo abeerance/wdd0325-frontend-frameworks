@@ -1,12 +1,13 @@
 // src/components/text-field.tsx
 import { Field } from "@base-ui/react/field";
 import type { UseFormRegisterReturn } from "react-hook-form";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/utils/cn";
 
 const FOCUS_RING_CLASSES =
   "focus-visible:outline-2 focus-visible:outline-moss focus-visible:outline-offset-2";
 const FIELD_LABEL_CLASSES =
   "font-medium text-bark text-xs uppercase tracking-wider";
+// Base UI puts `data-invalid` on the box when the Field is invalid, so the clay border needs no extra state.
 const TEXT_BOX_CLASSES = cn(
   "min-h-11 rounded-2xl border border-stone bg-card px-3 text-ink data-invalid:border-clay",
   FOCUS_RING_CLASSES,
@@ -22,6 +23,7 @@ interface TextFieldProps {
 }
 
 // One labelled box of a form. Its sentence, from the schema or from the API, stands under it.
+// Used by the join and login forms for the name and email boxes.
 export function TextField({
   label,
   type,
@@ -32,12 +34,14 @@ export function TextField({
   return (
     <Field.Root invalid={error !== undefined} className="flex flex-col gap-1.5">
       <Field.Label className={FIELD_LABEL_CLASSES}>{label}</Field.Label>
+      {/* The spread connects the box to React Hook Form: its name, change handlers and ref. The form reads the value itself, so there is no value state here. */}
       <Field.Control
         type={type}
         autoComplete={autoComplete}
         {...registration}
         className={TEXT_BOX_CLASSES}
       />
+      {/* Only drawn when there is a sentence to show. */}
       <Field.Error match={error !== undefined} className="text-clay text-xs">
         {error}
       </Field.Error>

@@ -1,7 +1,7 @@
 // src/components/variety-photo.tsx
 import Image from "next/image";
+import { varietyPhotoUrl } from "@/lib/api/varieties";
 import type { Variety } from "@/lib/types";
-import { varietyPhotoUrl } from "@/lib/varieties";
 
 interface VarietyPhotoProps {
   variety: Variety;

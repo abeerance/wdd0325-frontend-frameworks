@@ -5,7 +5,7 @@ import { Field } from "@base-ui/react/field";
 import { Switch } from "@base-ui/react/switch";
 import { useId, useState } from "react";
 import type { UseFormRegisterReturn } from "react-hook-form";
-import { cn } from "@/lib/cn";
+import { cn } from "@/lib/utils/cn";
 
 const FOCUS_RING_CLASSES =
   "focus-visible:outline-2 focus-visible:outline-moss focus-visible:outline-offset-2";
@@ -42,7 +42,9 @@ export function PasswordField({
   confirmationError,
 }: PasswordFieldProps) {
   const [isShown, setIsShown] = useState(false);
+  // A unique id, so the label below can point at the switch with htmlFor.
   const switchId = useId();
+  // Both boxes share one `type`, so one switch shows or hides both.
   const type = isShown ? "text" : "password";
   const isJoining = confirmation !== undefined;
 
@@ -54,6 +56,7 @@ export function PasswordField({
           className="flex flex-col gap-1.5"
         >
           <Field.Label className={FIELD_LABEL_CLASSES}>Password</Field.Label>
+          {/* register gave this box a name, change handlers and a ref. The form reads the typed password from the box, so there is no value state here. */}
           <Field.Control
             type={type}
             autoComplete={autoComplete}
@@ -63,6 +66,7 @@ export function PasswordField({
             {...password}
             className={TEXT_BOX_CLASSES}
           />
+          {/* Only the joining form states the rule up front. */}
           {isJoining ? (
             <Field.Description className="text-bark text-xs">
               At least 12 characters.
@@ -104,6 +108,7 @@ export function PasswordField({
       </div>
 
       <div className="flex items-center">
+        {/* A Base UI Switch is a button. type="button" stops it from submitting the form when it is clicked. */}
         <Switch.Root
           id={switchId}
           nativeButton

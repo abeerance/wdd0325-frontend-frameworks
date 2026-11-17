@@ -2,7 +2,7 @@
 // padding. Components in ui/ know nothing about seed, so this one is named after how
 // it looks. Components about varieties are named after what they are for.
 import type { ComponentPropsWithoutRef } from "react";
-import { cn } from "../../lib/cn";
+import { cn } from "@/lib/utils/cn";
 
 // Everything a <div> accepts (children, className, id, ...), plus `as`, which picks
 // the element: "article" for a card that stands on its own, "div" for the rest.

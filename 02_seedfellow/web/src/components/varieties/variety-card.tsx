@@ -1,19 +1,21 @@
 // src/components/variety-card.tsx
 import Link from "next/link";
-import { PhotoCredit } from "@/components/photo-credit";
+import { BorrowDialog } from "@/components/borrowings/borrow-dialog";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
-import { formatMonths } from "@/lib/months";
+import { PacketLine } from "@/components/varieties/packet-line";
+import { PhotoCredit } from "@/components/varieties/photo-credit";
+import { VarietyPhoto } from "@/components/varieties/variety-photo";
+import { brief } from "@/lib/api/varieties";
 import type { Variety } from "@/lib/types";
-import { brief } from "@/lib/varieties";
-import { BorrowDialog } from "./borrow-dialog";
-import { PacketLine } from "./packet-line";
-import { VarietyPhoto } from "./variety-photo";
+import { formatMonths } from "@/lib/utils/months";
 
 interface VarietyCardProps {
   variety: Variety;
 }
 
+// One variety in the catalogue grid: photo, name, short story and a borrow button. It takes
+// a full variety and is used by the catalogue page for each entry.
 // A server component. It holds no state and passes no handler, so nothing in it has to
 // run in the browser. The native disclosure needs no React state. Only the borrow
 // dialog is a client component, given the fields its form needs.
@@ -45,6 +47,8 @@ export function VarietyCard({ variety }: VarietyCardProps) {
         <Text variant="muted">{variety.species}</Text>
       </div>
 
+      {/* <details> is the browser's own show/hide box. The `group-open:` classes swap the
+          "Read more" and "Less" labels while it is open. */}
       <details className="group">
         <summary className="w-fit min-h-11 cursor-pointer rounded-sm py-2 font-medium text-moss text-sm underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-moss focus-visible:outline-offset-2">
           <span className="group-open:hidden">Read more</span>
@@ -56,6 +60,8 @@ export function VarietyCard({ variety }: VarietyCardProps) {
 
       <div className="mt-auto flex flex-col items-start gap-3">
         <PacketLine variety={variety} />
+        {/* brief() copies only the few fields the dialog needs, so the rest of the variety
+            is never sent to the browser. */}
         <BorrowDialog variety={brief(variety)} />
       </div>
     </Card>

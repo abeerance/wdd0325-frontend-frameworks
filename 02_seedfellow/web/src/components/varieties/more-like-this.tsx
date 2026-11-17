@@ -1,14 +1,19 @@
 import Link from "next/link";
+import { Text } from "@/components/ui/text";
+import { getVarieties } from "@/lib/api/varieties";
 import type { Variety } from "@/lib/types";
-import { getVarieties } from "@/lib/varieties";
-import { Text } from "./ui/text";
 
 interface MoreLikeThisProps {
   variety: Variety;
 }
 
+// Up to three other varieties of the same kind (for example other tomatoes), as links. It
+// takes the variety being viewed and is used at the bottom of its page. A Server Component,
+// so it can `await` the API directly with no effect or loading state of its own.
 export async function MoreLikeThis({ variety }: MoreLikeThisProps) {
   const varieties = await getVarieties();
+  // Same kind, not the page's own variety, sorted by name so the choice is the same on
+  // every visit, then the first three.
   const others = varieties
     .filter(
       (candidate) =>
@@ -17,6 +22,7 @@ export async function MoreLikeThis({ variety }: MoreLikeThisProps) {
     .toSorted((a, b) => a.name.localeCompare(b.name))
     .slice(0, 3);
 
+  // Returning null draws nothing, so the page shows no empty "More like this" heading.
   if (others.length === 0) {
     return null;
   }
@@ -25,6 +31,7 @@ export async function MoreLikeThis({ variety }: MoreLikeThisProps) {
     <section className="flex flex-col gap-5 border-line border-t pt-8">
       <h2 className="font-semibold text-2xl text-ink">More like this</h2>
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* The key is the variety id: stable and unique, so React can tell items apart. */}
         {others.map((other) => (
           <li key={other.id} className="flex">
             <Link

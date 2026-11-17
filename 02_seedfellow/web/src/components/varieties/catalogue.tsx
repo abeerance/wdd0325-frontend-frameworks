@@ -1,6 +1,6 @@
-import { CatalogueFilter } from "@/components/catalogue-filter";
-import { VarietyCard } from "@/components/variety-card";
-import { brief, getVarieties } from "@/lib/varieties";
+import { CatalogueFilter } from "@/components/varieties/catalogue-filter";
+import { VarietyCard } from "@/components/varieties/variety-card";
+import { brief, getVarieties } from "@/lib/api/varieties";
 
 // A server component, and async so it can wait for getVarieties(). It builds every card here, on the
 // server, and hands the finished cards to the client filter, which only decides which to show.
