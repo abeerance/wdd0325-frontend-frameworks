@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import type { ActionState } from "@/lib/action-state";
 import { joinSchema, loginSchema } from "@/lib/schemas";
-import { keepToken } from "@/lib/session";
+import { apiAsMember, forgetToken, keepToken } from "@/lib/session";
 
 // What the API answers a registration and a login with. The member comes too, and is not
 // kept: the next page asks for it with the token.
@@ -130,4 +130,11 @@ export async function signIn(
 	}
 
 	return refusalOf(answer);
+}
+
+// Ends the member's token at the API, then forgets the cookie. `redirect` ends the action.
+export async function signOut(): Promise<void> {
+	await apiAsMember("/api/logout", { method: "POST" });
+	await forgetToken();
+	redirect("/");
 }
