@@ -15,7 +15,7 @@ npm ci
 npm run dev
 ```
 
-Before `npm run dev`, make sure `.env.local` in this folder holds the line `API_URL=http://localhost:8080`. Create the file if it is missing; if it exists, add the line and keep the rest. The file stays out of Git. The server reads `API_URL` for every request, and the browser loads photographs from that address.
+Before `npm run dev`, make sure `.env.local` in this folder holds the line `API_URL=http://localhost:8080`. Create the file if it is missing; if it exists, add the line and keep the rest. The file stays out of Git. The server reads `API_URL` for every request, and so does the image optimizer, which fetches the photographs from that address on the server. The browser only ever talks to this site, so there is nothing to allow for the API.
 
 Open <http://localhost:3000>. Edit files under `src/`; the development server updates the page as you save.
 

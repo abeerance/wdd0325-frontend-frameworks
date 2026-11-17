@@ -1,8 +1,8 @@
 # Seedfellow web
 
-Seed library front end: members browse, filter and borrow heritage varieties. Data is
-local in `src/data/varieties.ts`. Next.js App Router (React Compiler), TypeScript,
-Tailwind v4, Base UI, npm. API reads are request-time; caching is out of scope.
+Seed library front end: members browse, filter and borrow heritage varieties. Public data comes from the Seedfellow API at `API_URL`, through `src/lib/varieties.ts` and nothing else.
+The browser never calls the API: every request to it runs on the server. A member's token lives in an httpOnly cookie that only `src/lib/session.ts` reads and the auth actions in `src/lib/actions/auth.ts` set and clear.
+Next.js App Router (React Compiler), TypeScript, Tailwind v4, Base UI, npm. Zod for every schema, in `src/lib/schemas.ts`. React Hook Form for every form whose fields go to a server action. API reads are request-time; caching is out of scope.
 
 Folder rules live in `AGENTS.md` under `src/app/`, `src/components/`, `src/hooks/`.
 
@@ -13,6 +13,10 @@ Folder rules live in `AGENTS.md` under `src/app/`, `src/components/`, `src/hooks
 - Never touch `../backend/`; it is a separate project with its own rules.
 - No `any`, no `@ts-ignore`. A type that does not fit means the code is wrong.
 - Never edit a check, type or test to make it pass. Fix the code, or stop and say why.
+- An action takes `values: unknown` and parses it with a schema from `src/lib/schemas.ts`
+  before anything else. Identity comes from the session, never from the values.
+- A form uses `useForm` with `zodResolver` and the same schema the action parses. Inputs
+  are Base UI `Field` parts: `register` for text and numbers.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

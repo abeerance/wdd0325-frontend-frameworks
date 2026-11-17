@@ -67,10 +67,8 @@ export async function getVariety(id: string): Promise<VarietyDetail | null> {
   return data;
 }
 
-// Where the browser loads a variety's photograph, or null when it has none. The version
-// changes whenever the photograph does, so a replacement has its own address, and the
-// API lets the browser keep a versioned address for a year. The browser fetches it
-// straight from the API, so API_URL has to be an address the browser can reach too.
+// Where the image optimizer fetches a variety's photograph, or null when it has none. The
+// version changes whenever the photograph does, so the optimizer may keep its copy a year.
 export function varietyPhotoUrl({ id, photo_version }: Variety): string | null {
   return photo_version === null
     ? null

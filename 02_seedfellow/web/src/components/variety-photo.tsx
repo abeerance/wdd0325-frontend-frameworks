@@ -1,17 +1,25 @@
 // src/components/variety-photo.tsx
+import Image from "next/image";
 import type { Variety } from "@/lib/types";
 import { varietyPhotoUrl } from "@/lib/varieties";
 
 interface VarietyPhotoProps {
   variety: Variety;
-  /** The photograph is what the page is about, so it loads first instead of when scrolled to. */
-  isMain?: boolean;
+  /** How wide the slot is at each screen width, as the page lays it out. */
+  sizes: string;
+  /** The photograph is the largest thing on the page, so the browser fetches it from the head. */
+  preload?: boolean;
 }
 
 // The picture slot with the variety's photograph in it. The slot is 4:3 before the photo
 // arrives, and the photo is cropped to fill it, so nothing on the page moves when it loads.
-// A variety without a photo keeps the same reserved picture slot.
-export function VarietyPhoto({ variety, isMain = false }: VarietyPhotoProps) {
+// The optimizer fetches the photograph from the API and sends the browser only the width
+// the slot needs. A variety without a photo keeps the same reserved slot.
+export function VarietyPhoto({
+  variety,
+  sizes,
+  preload = false,
+}: VarietyPhotoProps) {
   const src = varietyPhotoUrl(variety);
 
   if (src === null) {
@@ -24,14 +32,14 @@ export function VarietyPhoto({ variety, isMain = false }: VarietyPhotoProps) {
   }
 
   return (
-    <div className="aspect-4/3 w-full overflow-hidden rounded-2xl bg-dew">
-      {/* biome-ignore lint/performance/noImgElement: sent as the API stores it, on purpose */}
-      <img
+    <div className="relative aspect-4/3 w-full overflow-hidden rounded-2xl bg-dew">
+      <Image
         src={src}
         alt={variety.name}
-        loading={isMain ? "eager" : "lazy"}
-        fetchPriority={isMain ? "high" : undefined}
-        className="size-full object-cover"
+        fill
+        sizes={sizes}
+        preload={preload}
+        className="object-cover"
       />
     </div>
   );

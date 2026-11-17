@@ -21,7 +21,10 @@ export function VarietyCard({ variety }: VarietyCardProps) {
   return (
     <Card as="article" className="flex w-full flex-col gap-4">
       <figure className="flex flex-col gap-1.5">
-        <VarietyPhoto variety={variety} />
+        <VarietyPhoto
+          variety={variety}
+          sizes="(min-width: 1152px) 321px, (min-width: 1024px) calc((100vw - 88px) / 3 - 34px), (min-width: 640px) calc((100vw - 68px) / 2 - 34px), calc(100vw - 66px)"
+        />
         {variety.photo_credit ? (
           <PhotoCredit credit={variety.photo_credit} />
         ) : null}

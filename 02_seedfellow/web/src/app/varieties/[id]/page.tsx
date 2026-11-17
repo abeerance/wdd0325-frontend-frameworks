@@ -42,7 +42,11 @@ async function VarietyDetails({ params }: VarietyParams) {
     <div className="flex flex-col gap-12">
       <article className="grid gap-8 lg:grid-cols-2 lg:items-start">
         <figure className="flex flex-col gap-1">
-          <VarietyPhoto variety={variety} isMain />
+          <VarietyPhoto
+            variety={variety}
+            sizes="(min-width: 1152px) 536px, (min-width: 1024px) calc((100vw - 80px) / 2), (min-width: 640px) calc(100vw - 48px), calc(100vw - 32px)"
+            preload
+          />
           {variety.photo_credit ? (
             <PhotoCredit credit={variety.photo_credit} />
           ) : null}

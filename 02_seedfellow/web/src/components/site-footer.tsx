@@ -18,6 +18,12 @@ export function SiteFooter() {
           <Text className="border-moss border-l-2 pl-3 font-medium text-moss">
             Seed is lent, never sold.
           </Text>
+          <Link
+            href="/join"
+            className="inline-flex min-h-11 items-center self-start rounded-sm font-medium text-moss text-sm underline underline-offset-4 hover:text-moss-deep focus-visible:outline-2 focus-visible:outline-moss focus-visible:outline-offset-2"
+          >
+            Join the library
+          </Link>
         </section>
 
         <section className="flex flex-col gap-3">
